@@ -1,12 +1,13 @@
 var
-  clean   = require('gulp-rimraf'),
+  path = require('path'),
+  clean = require('gulp-rimraf'),
   cache = require('gulp-cached'),
   jshint = require('gulp-jshint'),
   esnext = require('gulp-esnext'),
   nextModule = require('gulp-es6-module-transpiler'),
-  rename   = require('gulp-rename'),
-  less   = require('gulp-less'),
-  karma  = require('gulp-karma'),
+  rename = require('gulp-rename'),
+  less = require('gulp-less'),
+  karma = require('gulp-karma'),
   uglify = require('gulp-uglify'),
   replace = require('gulp-replace'),
   livereload = require('gulp-livereload'),
@@ -73,7 +74,8 @@ var gulpConfig = function(gulp, config) {
     .pipe(bump({type: importance}))
     .pipe(gulp.dest('./'))
     .pipe(git.commit('Release v' + semver.inc(
-        require('./package.json').version, importance)))
+        require(path.dirname(module.parent.filename) + '/package.json').version,
+        importance)))
     .pipe(tagVersion())
     .pipe(git.push('origin', 'master', { args: '--tags' }));
   };
