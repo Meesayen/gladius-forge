@@ -1,12 +1,13 @@
 var
-  clean   = require('gulp-rimraf'),
+  path = require('path'),
+  clean = require('gulp-rimraf'),
   cache = require('gulp-cached'),
   jshint = require('gulp-jshint'),
   esnext = require('gulp-esnext'),
   nextModule = require('gulp-es6-module-transpiler'),
-  rename   = require('gulp-rename'),
-  less   = require('gulp-less'),
-  karma  = require('gulp-karma'),
+  rename = require('gulp-rename'),
+  less = require('gulp-less'),
+  karma = require('gulp-karma'),
   uglify = require('gulp-uglify'),
   replace = require('gulp-replace'),
   livereload = require('gulp-livereload'),
@@ -22,63 +23,86 @@ var
   tagVersion = require('gulp-tag-version');
 
 
-var elaboratePaths = function(paths) {
-  var src = paths.src;
-  var out = paths.out;
+var
+  cleanTmp = null,
+  paths = {},
+  lrport = 35729,
+  serverport = 3000,
+  server = null,
+  gulp = null,
 
-  src.base = src.base || 'src/';
-  src.css = src.css || 'less/';
-  src.scripts = src.scripts || 'scripts/';
-  src.views = src.views || '../views/';
-  src.partials = src.partials || 'partials/';
+  // paths normalization helper
+  elaboratePaths = function(paths) {
+    var src = paths.src;
+    var out = paths.out;
 
-  out.base = out.base || 'public/';
+    src.base = src.base || 'src/';
+    src.css = src.css || 'less/';
+    src.scripts = src.scripts || 'scripts/';
+    src.views = src.views || '../views/';
+    src.partials = src.partials || 'partials/';
 
-  var processed = {
-    src: {
-      css: src.base + src.css + '**/*.less',
-      scripts: src.base + src.scripts,
-      es6: src.base + src.scripts + '**/*.es6',
-      js: src.base + src.scripts + '**/*.js',
-      views: src.base + src.views + '**/*.hbs',
-      mocks: src.base + src.views + '**/*.json',
-      partials: src.base + src.views + src.partials + '**/*.hbs',
-      tmp: src.base + 'temp/'
-    },
-    out: {
-      base: out.base,
-      css: out.base + (out.css || 'css/'),
-      js: out.base + (out.js || 'js/')
-    }
+    out.base = out.base || 'public/';
+
+    var processed = {
+      src: {
+        css: src.base + src.css + '**/*.less',
+        scripts: src.base + src.scripts,
+        es6: src.base + src.scripts + '**/*.es6',
+        js: src.base + src.scripts + '**/*.js',
+        views: src.base + src.views + '**/*.hbs',
+        mocks: src.base + src.views + '**/*.json',
+        partials: src.base + src.views + src.partials + '**/*.hbs',
+        tmp: src.base + 'temp/'
+      },
+      out: {
+        base: out.base,
+        css: out.base + (out.css || 'css/'),
+        js: out.base + (out.js || 'js/')
+      }
+    };
+
+    return processed;
   };
 
-  return processed;
-};
 
-var cleanTmp;
+/**
+ * Gulp Boilerplate configuration function.
+ * @param  {Object} _gulp: The gulp instance created from the gulpfile.js
+ * @param  {Object} config: Configuration object
+ */
+var gulpConfig = function(_gulp, config) {
+  gulp = _gulp;
+  paths = elaboratePaths(config.paths);
+  lrport = config.liveReloadPort || lrport;
+  server = config.server || (console.error(
+      'An Express server should be passed in the configuration.')),
+  serverport = config.port || serverport;
 
-var gulpConfig = function(gulp, config) {
-  var paths = elaboratePaths(config.paths);
-  var lrport = config.liveReloadPort || 35729;
-  var serverport = config.port || 3000;
-
-
-  /* Helpers ----------------------------------------------------------------- */
   cleanTmp = function() {
     gulp.src(paths.src.tmp, {read: false})
     .pipe(clean());
   };
+};
+
+
+/**
+ * Gulp Boilerplate default tasks setup function.
+ */
+var gulpSetupTasks = function() {
+  /* Helpers --------------------------------------------------------------- */
   var inc = function(importance) {
     return gulp.src(['./package.json'])
     .pipe(bump({type: importance}))
     .pipe(gulp.dest('./'))
     .pipe(git.commit('Release v' + semver.inc(
-        require('./package.json').version, importance)))
+        require(path.dirname(module.parent.filename) + '/package.json').version,
+        importance)))
     .pipe(tagVersion())
     .pipe(git.push('origin', 'master', { args: '--tags' }));
   };
 
-  /* Version bumping --------------------------------------------------------- */
+  /* Version bumping ------------------------------------------------------- */
   gulp.task('patch', function() { return inc('patch'); });
   gulp.task('feature', function() { return inc('minor'); });
   gulp.task('release', function() { return inc('major'); });
@@ -88,7 +112,7 @@ var gulpConfig = function(gulp, config) {
     CSS TASKS
               */
 
-  /* LESS compilation -------------------------------------------------------- */
+  /* LESS compilation ------------------------------------------------------ */
   gulp.task('less', function() {
     return gulp.src([paths.src.css])
     .pipe(less({
@@ -103,7 +127,7 @@ var gulpConfig = function(gulp, config) {
     TEMPLATES TASKS
                     */
 
-  /* Handlebars templates precompilation ------------------------------------- */
+  /* Handlebars templates precompilation ----------------------------------- */
   gulp.task('tpl-precompile', function() {
     return gulp.src([paths.src.partials])
     .pipe(handlebars())
@@ -115,7 +139,7 @@ var gulpConfig = function(gulp, config) {
     .pipe(gulp.dest(paths.out.js));
   });
 
-  /* Handlebars template livereloading --------------------------------------- */
+  /* Handlebars template livereloading ------------------------------------- */
   gulp.task('tpl-reload', ['tpl-precompile'], function() {
     return gulp.src([
       paths.src.views,
@@ -130,7 +154,7 @@ var gulpConfig = function(gulp, config) {
     SCRIPTS TASKS
                   */
 
-  /* JS linting -------------------------------------------------------------- */
+  /* JS linting ------------------------------------------------------------ */
   gulp.task('lint', function() {
     return gulp.src([
       paths.src.js,
@@ -144,7 +168,7 @@ var gulpConfig = function(gulp, config) {
     .pipe(jshint.reporter('jshint-stylish'));
   });
 
-  /* ES6 Syntax transpilation ------------------------------------------------ */
+  /* ES6 Syntax transpilation ---------------------------------------------- */
   gulp.task('esnext', ['copy'], function () {
     return gulp.src([
       paths.src.es6
@@ -164,7 +188,7 @@ var gulpConfig = function(gulp, config) {
   });
 
 
-  /* JS modules bundling ----------------------------------------------------- */
+  /* JS modules bundling --------------------------------------------------- */
   gulp.task('bundle-js', ['esnext'], function() {
     return gulp.src([
       paths.src.tmp + 'pages/**/*.js',
@@ -200,7 +224,7 @@ var gulpConfig = function(gulp, config) {
     .pipe(gulp.dest(paths.out.js));
   });
 
-  /* JS unit tests runner ---------------------------------------------------- */
+  /* JS unit tests runner -------------------------------------------------- */
   gulp.task('karma', function() {
     return gulp.src([
       'temp/vendor/handlebars.runtime.js',
@@ -233,9 +257,9 @@ var gulpConfig = function(gulp, config) {
     UTILS
           */
 
-  /* Lightweight frontend development server --------------------------------  */
+  /* Lightweight frontend development server ------------------------------- */
   gulp.task('serve', function() {
-    config.server.listen(serverport);
+    server.listen(serverport);
   });
 
   gulp.task('copy', function() {
@@ -252,9 +276,16 @@ var gulpConfig = function(gulp, config) {
     .pipe(cache('reloading'))
     .pipe(livereload(lrport));
   });
+};
 
 
-  /* Watchers ---------------------------------------------------------------- */
+/**
+ * Gulp Boilerplate watchers setup function. It takes a list of extra watchers
+ * to add to the process.
+ * @param  {list<function>} extraWatchers: List of extra watchers to add.
+ */
+var gulpSetupWatchers = function(extraWatchers) {
+  /* Watchers -------------------------------------------------------------- */
   gulp.task('watch', ['serve'], function () {
     gulp.watch(paths.src.es6, ['bundle-js:dev:clean']);
     gulp.watch(paths.src.scripts + '*.js', ['bundle-js:dev:clean']);
@@ -265,14 +296,20 @@ var gulpConfig = function(gulp, config) {
     gulp.watch(paths.src.mocks, ['tpl-reload']);
     gulp.watch(paths.out.base + '**/*', ['reload']);
 
-    for (var i = 0, w; (w = config.extraWatchers[i]); i++) {
+    for (var i = 0, w; (w = extraWatchers[i]); i++) {
       w(gulp);
     }
   });
 };
 
 
-var gulpMainTasksSetup = function(gulp, extensions) {
+/**
+ * Gulp Boilerplate main tasks setup function. It can extend main tasks with
+ * extra externally defined tasks via an "extension" parameter.
+ * @param  {Object} extensions: object descriptor of extra tasks to add for
+ *                              each main task.
+ */
+var gulpSetupMainTasks = function(extensions) {
   var
     devExts = extensions.development || [],
     testExts = extensions.test || [],
@@ -302,7 +339,9 @@ var gulpMainTasksSetup = function(gulp, extensions) {
 
 module.exports = {
   config: gulpConfig,
-  mainTasksSetup: gulpMainTasksSetup,
+  setupTasks: gulpSetupTasks,
+  setupWatchers: gulpSetupWatchers,
+  setupMain: gulpSetupMainTasks,
   plugins: {
     clean: clean,
     cache: cache,

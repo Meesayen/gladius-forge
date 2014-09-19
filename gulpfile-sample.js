@@ -1,8 +1,7 @@
 var
   gulp = require('gulp'),
   gulpBoilerplate = require('es6-gulp-boilerplate'),
-  server = require('./app'),
-  publishHelpersWatcher;
+  server = require('./app');
 
 
 /**
@@ -42,14 +41,12 @@ gulpBoilerplate.config(gulp, {
   // liveReloadPort default: 35729
   server: server,
   port: null,
-  liveReloadPort: null,
-
-  // declare extra watchers list here
-  extraWatchers: [
-    publishHelpersWatcher
-  ]
+  liveReloadPort: null
 });
 
+
+// TODO make it possible to hook into predefined tasks
+gulpBoilerplate.setupTasks();
 
 
 /**
@@ -67,9 +64,14 @@ gulp.task('publish-helpers', function() {
 /**
  * Add extra gulp watchers below
  */
-publishHelpersWatcher = function(gulp) {
-  gulp.watch('handlebars.helpers.js', ['publish-helpers']);
-};
+var extraWatchers = [
+  function(gulp) {
+    gulp.watch('handlebars.helpers.js', ['publish-helpers']);
+  }
+];
+
+gulpBoilerplate.setupWatchers(extraWatchers);
+
 
 
 /**
@@ -78,7 +80,7 @@ publishHelpersWatcher = function(gulp) {
  * If you need to hook a particular task into another one, wait for the next
  * release of this build environment. :)
  */
-gulpBoilerplate.mainTasksSetup(gulp, {
+gulpBoilerplate.setupMain({
   'development': [
     'publish-helpers'
   ],
