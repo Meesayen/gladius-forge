@@ -1,26 +1,8 @@
+/* jshint -W079 */
 var
   path = require('path'),
-  clean = require('gulp-rimraf'),
-  cache = require('gulp-cached'),
-  jshint = require('gulp-jshint'),
-  esnext = require('gulp-esnext'),
-  nextModule = require('gulp-es6-module-transpiler'),
-  rename = require('gulp-rename'),
-  less = require('gulp-less'),
-  karma = require('gulp-karma'),
-  uglify = require('gulp-uglify'),
-  replace = require('gulp-replace'),
-  livereload = require('gulp-livereload'),
-  autoprefix = require('gulp-autoprefixer'),
-  browserify = require('gulp-browserify'),
-  handlebars = require('gulp-handlebars'),
-  defineModule = require('gulp-define-module'),
-  declare = require('gulp-declare'),
-  concat = require('gulp-concat'),
-  git = require('gulp-git'),
-  bump = require('gulp-bump'),
-  semver = require('semver'),
-  tagVersion = require('gulp-tag-version');
+  $ = require('gulp-load-plugins')(),
+  semver = require('semver');
 
 
 var
@@ -81,7 +63,7 @@ var gulpConfig = function(_gulp, config) {
 
   cleanTmp = function() {
     gulp.src(paths.src.tmp, {read: false})
-    .pipe(clean());
+    .pipe($.rimraf());
   };
 };
 
@@ -93,13 +75,13 @@ var gulpSetupTasks = function() {
   /* Helpers --------------------------------------------------------------- */
   var inc = function(importance) {
     return gulp.src(['./package.json'])
-    .pipe(bump({type: importance}))
+    .pipe($.bump({type: importance}))
     .pipe(gulp.dest('./'))
-    .pipe(git.commit('Release v' + semver.inc(
+    .pipe($.git.commit('Release v' + semver.inc(
         require(path.dirname(module.parent.filename) + '/package.json').version,
         importance)))
-    .pipe(tagVersion())
-    .pipe(git.push('origin', 'master', { args: '--tags' }));
+    .pipe($.tagVersion())
+    .pipe($.git.push('origin', 'master', { args: '--tags' }));
   };
 
   /* Version bumping ------------------------------------------------------- */
@@ -115,10 +97,10 @@ var gulpSetupTasks = function() {
   /* LESS compilation ------------------------------------------------------ */
   gulp.task('less', function() {
     return gulp.src([paths.src.css])
-    .pipe(less({
+    .pipe($.less({
       compress: true
     }))
-    .pipe(autoprefix('last 2 version', 'ie 8', 'ie 9'))
+    .pipe($.autoprefixer('last 2 version', 'ie 8', 'ie 9'))
     .pipe(gulp.dest(paths.out.css));
   });
 
@@ -130,12 +112,12 @@ var gulpSetupTasks = function() {
   /* Handlebars templates precompilation ----------------------------------- */
   gulp.task('tpl-precompile', function() {
     return gulp.src([paths.src.partials])
-    .pipe(handlebars())
-    .pipe(defineModule('plain'))
-    .pipe(declare({
+    .pipe($.handlebars())
+    .pipe($.defineModule('plain'))
+    .pipe($.declare({
       namespace: 'Handlebars.templates'
     }))
-    .pipe(concat('templates.js'))
+    .pipe($.concat('templates.js'))
     .pipe(gulp.dest(paths.out.js));
   });
 
@@ -145,7 +127,7 @@ var gulpSetupTasks = function() {
       paths.src.views,
       paths.src.mocks
     ])
-    .pipe(livereload(lrport));
+    .pipe($.livereload(lrport));
   });
 
 
@@ -162,10 +144,10 @@ var gulpSetupTasks = function() {
       '!' + paths.src.scripts + 'vendor/**/*',
       '!' + paths.src.scripts + 'mock/lib/**/*'
     ])
-    .pipe(jshint({
+    .pipe($.jshint({
       lookup: true
     }))
-    .pipe(jshint.reporter('jshint-stylish'));
+    .pipe($.jshint.reporter('jshint-stylish'));
   });
 
   /* ES6 Syntax transpilation ---------------------------------------------- */
@@ -174,15 +156,15 @@ var gulpSetupTasks = function() {
       paths.src.es6
     ])
     // .pipe(cache('esnexting'))
-    .pipe(esnext())
-    .pipe(nextModule({
+    .pipe($.esnext())
+    .pipe($.es6ModuleTranspiler({
       type: 'cjs'
     }))
 
     // Needed to support IE8. Get rid of it ASAP.
-    .pipe(replace(/\.catch/g, "['catch']"))
-    .pipe(replace(/\.throw/g, "['throw']"))
-    .pipe(replace(/\.return/g, "['return']"))
+    .pipe($.replace(/\.catch/g, "['catch']"))
+    .pipe($.replace(/\.throw/g, "['throw']"))
+    .pipe($.replace(/\.return/g, "['return']"))
 
     .pipe(gulp.dest(paths.src.tmp));
   });
@@ -194,11 +176,11 @@ var gulpSetupTasks = function() {
       paths.src.tmp + 'pages/**/*.js',
       '!' + paths.src.tmp + 'pages/**/*.test.js'
     ])
-    .pipe(browserify({
+    .pipe($.browserify({
       insertGlobals: false,
       debug: !gulp.env.production
     }))
-    .pipe(uglify())
+    .pipe($.uglify())
     .pipe(gulp.dest(paths.out.js));
   });
   gulp.task('bundle-js:dev', ['bundle-mock-server'], function() {
@@ -206,7 +188,7 @@ var gulpSetupTasks = function() {
       paths.src.tmp + 'pages/**/*.js',
       '!' + paths.src.tmp + 'pages/**/*.test.js'
     ])
-    .pipe(browserify({
+    .pipe($.browserify({
       insertGlobals: false,
       debug: !gulp.env.production
     }))
@@ -214,11 +196,11 @@ var gulpSetupTasks = function() {
   });
   gulp.task('bundle-mock-server', ['lint', 'esnext'], function() {
     return gulp.src([paths.src.tmp + '/mock/server.js'])
-    .pipe(browserify({
+    .pipe($.browserify({
       insertGlobals: false,
       debug: true
     }))
-    .pipe(rename(function (path) {
+    .pipe($.rename(function (path) {
       path.basename = 'mock-server';
     }))
     .pipe(gulp.dest(paths.out.js));
@@ -230,7 +212,7 @@ var gulpSetupTasks = function() {
       'temp/vendor/handlebars.runtime.js',
       'temp/**/*.test.js'
     ])
-    .pipe(karma({
+    .pipe($.karma({
       configFile: 'karma.conf.js',
       action: 'run'
     }))
@@ -243,7 +225,7 @@ var gulpSetupTasks = function() {
       'temp/vendor/handlebars.runtime.js',
       'temp/**/*.test.js'
     ])
-    .pipe(karma({
+    .pipe($.karma({
       configFile: 'karma.conf.js',
       action: 'watch'
     }))
@@ -273,8 +255,8 @@ var gulpSetupTasks = function() {
 
   gulp.task('reload', function() {
     gulp.src(paths.out.base + '**/*')
-    .pipe(cache('reloading'))
-    .pipe(livereload(lrport));
+    .pipe($.cached('reloading'))
+    .pipe($.livereload(lrport));
   });
 };
 
@@ -343,26 +325,26 @@ module.exports = {
   setupWatchers: gulpSetupWatchers,
   setupMain: gulpSetupMainTasks,
   plugins: {
-    clean: clean,
-    cache: cache,
-    jshint: jshint,
-    esnext: esnext,
-    nextModule: nextModule,
-    rename: rename,
-    less: less,
-    karma: karma,
-    uglify: uglify,
-    replace: replace,
-    livereload: livereload,
-    autoprefix: autoprefix,
-    browserify: browserify,
-    handlebars: handlebars,
-    defineModule: defineModule,
-    declare: declare,
-    concat: concat,
-    git: git,
-    bump: bump,
+    clean: $.clean,
+    cached: $.cached,
+    jshint: $.jshint,
+    esnext: $.esnext,
+    es6ModuleTranspiler: $.es6ModuleTranspiler,
+    rename: $.rename,
+    less: $.less,
+    karma: $.karma,
+    uglify: $.uglify,
+    replace: $.replace,
+    livereload: $.livereload,
+    autoprefix: $.autoprefixer,
+    browserify: $.browserify,
+    handlebars: $.handlebars,
+    defineModule: $.defineModule,
+    declare: $.declare,
+    concat: $.concat,
+    git: $.git,
+    bump: $.bump,
     semver: semver,
-    tagVersion: tagVersion
+    tagVersion: $.tagVersion
   }
 };
