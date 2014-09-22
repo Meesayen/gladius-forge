@@ -8,29 +8,33 @@ var
  * Here you can configure the gulp build system with custom folders etc.
  */
 gulpBoilerplate.config(gulp, {
+  modules: {
+    // module to use to preprocess your stylesheets. default: less
+    // possible values: less, sass, sassCompass, stylus, myth.
+    styles: 'less'
+  },
   paths: {
     src: {
       // folder home of your source files (less, js, etc). default: src/
       base: '',
 
-      // css sources folder. default: less/
-      css: '',
+      // styles sources folder. default: styles/
+      styles: '',
 
       // scripts folder. default: scripts/
       scripts: '',
 
       // templates and partials folder: default: ../views/, partials/
       templates: '',
-      partials: '',
-
+      partials: ''
     },
 
     out: {
       // folder destination for built bundles. default: public/
       base: '',
 
-      // production ready css folder. default: css/
-      css: '',
+      // production ready styles folder. default: css/
+      styles: '',
 
       // production ready scripts folder. default: js/
       scripts: ''

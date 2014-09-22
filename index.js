@@ -8,44 +8,70 @@ var
 var
   cleanTmp = null,
   paths = {},
+  config = {},
   lrport = 35729,
   serverport = 3000,
   server = null,
   gulp = null,
+  plugins = {};
 
-  // paths normalization helper
-  elaboratePaths = function(paths) {
-    var src = paths.src;
-    var out = paths.out;
 
-    src.base = src.base || 'src/';
-    src.css = src.css || 'less/';
-    src.scripts = src.scripts || 'scripts/';
-    src.views = src.views || '../views/';
-    src.partials = src.partials || 'partials/';
+// paths normalization helper
+var elaboratePaths = function() {
+  var src = config.paths.src;
+  var out = config.paths.out;
 
-    out.base = out.base || 'public/';
+  src.base = src.base || 'src/';
+  src.styles = src.styles || 'styles/';
+  src.scripts = src.scripts || 'scripts/';
+  src.views = src.views || '../views/';
+  src.partials = src.partials || 'partials/';
 
-    var processed = {
-      src: {
-        css: src.base + src.css + '**/*.less',
-        scripts: src.base + src.scripts,
-        es6: src.base + src.scripts + '**/*.es6',
-        js: src.base + src.scripts + '**/*.js',
-        views: src.base + src.views + '**/*.hbs',
-        mocks: src.base + src.views + '**/*.json',
-        partials: src.base + src.views + src.partials + '**/*.hbs',
-        tmp: src.base + 'temp/'
-      },
-      out: {
-        base: out.base,
-        css: out.base + (out.css || 'css/'),
-        js: out.base + (out.js || 'js/')
-      }
-    };
+  out.base = out.base || 'public/';
 
-    return processed;
+  var processed = {
+    src: {
+      styles: src.base + src.styles + '**/*' + plugins.styles.ext,
+      scripts: src.base + src.scripts,
+      es6: src.base + src.scripts + '**/*.es6',
+      js: src.base + src.scripts + '**/*.js',
+      views: src.base + src.views + '**/*.hbs',
+      mocks: src.base + src.views + '**/*.json',
+      partials: src.base + src.views + src.partials + '**/*.hbs',
+      tmp: src.base + 'temp/'
+    },
+    out: {
+      base: out.base,
+      styles: out.base + (out.styles || 'css/'),
+      js: out.base + (out.scripts || 'js/')
+    }
   };
+
+  return processed;
+};
+
+var elaboratePlugins = function() {
+  return {
+    styles: (function() {
+      var type = config.modules.styles;
+      return (type === 'less' && { ext: '.less', cmd: $['less'],
+            config: { compress: true }
+          }) ||
+          (type === 'sass' && { ext: '.sass', cmd: $['rubySass'],
+            config: { style: 'compressed' }
+          }) ||
+          (type === 'sassCompass' && { ext: '.scss', cmd: $['rubySass'],
+            config: { style: 'compressed', compass: true }
+          }) ||
+          (type === 'stylus' && { ext: '.styl', cmd: $['stylus'],
+            config: { compress: true }
+          }) ||
+          (type === 'myth' && { ext: '.css', cmd: $['myth'],
+            config: { sourcemap: true }
+          });
+    })(),
+  };
+};
 
 
 /**
@@ -53,13 +79,17 @@ var
  * @param  {Object} _gulp: The gulp instance created from the gulpfile.js
  * @param  {Object} config: Configuration object
  */
-var gulpConfig = function(_gulp, config) {
+var gulpConfig = function(_gulp, _config) {
   gulp = _gulp;
-  paths = elaboratePaths(config.paths);
-  lrport = config.liveReloadPort || lrport;
-  server = config.server || (console.error(
+  config = _config;
+
+  plugins = elaboratePlugins();
+  paths = elaboratePaths();
+
+  lrport = _config.liveReloadPort || lrport;
+  server = _config.server || (console.error(
       'An Express server should be passed in the configuration.')),
-  serverport = config.port || serverport;
+  serverport = _config.port || serverport;
 
   cleanTmp = function() {
     gulp.src(paths.src.tmp, {read: false})
@@ -94,14 +124,12 @@ var gulpSetupTasks = function() {
     CSS TASKS
               */
 
-  /* LESS compilation ------------------------------------------------------ */
-  gulp.task('less', function() {
-    return gulp.src([paths.src.css])
-    .pipe($.less({
-      compress: true
-    }))
+  /* Styles compilation ------------------------------------------------------ */
+  gulp.task('styles', function() {
+    return gulp.src([paths.src.styles])
+    .pipe(plugins.styles.cmd(plugins.styles.config))
     .pipe($.autoprefixer('last 2 version', 'ie 8', 'ie 9'))
-    .pipe(gulp.dest(paths.out.css));
+    .pipe(gulp.dest(paths.out.styles));
   });
 
 
@@ -273,7 +301,7 @@ var gulpSetupWatchers = function(extraWatchers) {
     gulp.watch(paths.src.scripts + '*.js', ['bundle-js:dev:clean']);
     gulp.watch(paths.src.scripts + '!(mock)/*.js', ['bundle-js:dev:clean']);
     gulp.watch(paths.src.scripts + 'mock/*.js', ['lint', 'bundle-js:dev:clean']);
-    gulp.watch(paths.src.css, ['less']);
+    gulp.watch(paths.src.styles, ['styles']);
     gulp.watch(paths.src.views, ['tpl-reload']);
     gulp.watch(paths.src.mocks, ['tpl-reload']);
     gulp.watch(paths.out.base + '**/*', ['reload']);
@@ -301,7 +329,7 @@ var gulpSetupMainTasks = function(extensions) {
 
   gulp.task('development', [
     'karma:dev',
-    'less',
+    'styles',
     'bundle-js:dev:clean',
     'tpl-precompile',
     'watch'
@@ -313,7 +341,7 @@ var gulpSetupMainTasks = function(extensions) {
   ].concat(testExts), cleanTmp);
 
   gulp.task('production', [
-    'less',
+    'styles',
     'bundle-js',
     'tpl-precompile'
   ].concat(prodExts));
@@ -331,7 +359,7 @@ module.exports = {
     esnext: $.esnext,
     es6ModuleTranspiler: $.es6ModuleTranspiler,
     rename: $.rename,
-    less: $.less,
+    styles: plugins.styles.cmd,
     karma: $.karma,
     uglify: $.uglify,
     replace: $.replace,
