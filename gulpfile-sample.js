@@ -60,7 +60,7 @@ gulpBoilerplate.setupTasks();
 /* Handlebars helpers bundling --------------------------------------------- */
 gulp.task('publish-helpers', function() {
   return gulp.src(['handlebars.helpers.js'])
-  .pipe(gulpBoilerplate.plugins.uglify())
+  .pipe(gulpBoilerplate.getPlugins().uglify())
   .pipe(gulp.dest('public/js/'));
 });
 
