@@ -97,11 +97,7 @@ gulpBoilerplate.setupWatchers(function(gulp) {
  * and concurrently run with other tasks.
  * ------------------------------------------------------------------------- */
 gulpBoilerplate.setupMain({
-  'development': [
-    'publish-helpers'
-  ],
+  'development': [],
   'test': [],
-  'production': [
-    'publish-helpers'
-  ]
+  'production': []
 });
