@@ -74,6 +74,28 @@ var elaboratePlugins = function() {
 };
 
 
+var extendDeps = function(deps, extra) {
+  if (!extra) {
+    return deps;
+  }
+  extra = extra.deps || [];
+  deps = deps.filter(function(el) {
+    return extra.indexOf('!' + el) === -1;
+  });
+  extra = extra.filter(function(el) {
+    return el.indexOf('!') !== 0;
+  });
+  return deps.concat(extra);
+};
+
+var extendSrcs = function(srcs, extra) {
+  if (!extra) {
+    return srcs;
+  }
+  return srcs.concat(extra.src || []);
+};
+
+
 /**
  * Gulp Boilerplate configuration function.
  * @param  {Object} _gulp: The gulp instance created from the gulpfile.js
@@ -101,7 +123,7 @@ var gulpConfig = function(_gulp, _config) {
 /**
  * Gulp Boilerplate default tasks setup function.
  */
-var gulpSetupTasks = function() {
+var gulpSetupTasks = function(tasksConfig) {
   /* Helpers --------------------------------------------------------------- */
   var inc = function(importance) {
     return gulp.src(['./package.json'])
@@ -165,13 +187,11 @@ var gulpSetupTasks = function() {
                   */
 
   /* JS linting ------------------------------------------------------------ */
-  gulp.task('lint', function() {
-    return gulp.src([
+  gulp.task('lint', extendDeps([], tasksConfig['lint']), function() {
+    return gulp.src(extendSrcs([
       paths.src.js,
-      paths.src.es6,
-      '!' + paths.src.scripts + 'vendor/**/*',
-      '!' + paths.src.scripts + 'mock/lib/**/*'
-    ])
+      paths.src.es6
+    ], tasksConfig['lint']))
     .pipe($.jshint({
       lookup: true
     }))
@@ -183,7 +203,6 @@ var gulpSetupTasks = function() {
     return gulp.src([
       paths.src.es6
     ])
-    // .pipe(cache('esnexting'))
     .pipe($.esnext())
     .pipe($.es6ModuleTranspiler({
       type: 'cjs'
@@ -199,11 +218,12 @@ var gulpSetupTasks = function() {
 
 
   /* JS modules bundling --------------------------------------------------- */
-  gulp.task('bundle-js', ['esnext'], function() {
-    return gulp.src([
+  gulp.task('bundle-js',
+      extendDeps(['esnext'], tasksConfig['bundle-js']), function() {
+    return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
       '!' + paths.src.tmp + 'pages/**/*.test.js'
-    ])
+    ], tasksConfig['bundle-js']))
     .pipe($.browserify({
       insertGlobals: false,
       debug: !gulp.env.production
@@ -211,34 +231,24 @@ var gulpSetupTasks = function() {
     .pipe($.uglify())
     .pipe(gulp.dest(paths.out.js));
   });
-  gulp.task('bundle-js:dev', ['bundle-mock-server'], function() {
-    return gulp.src([
+  gulp.task('bundle-js:dev',
+      extendDeps(['esnext'], tasksConfig['bundle-js:dev']), function() {
+    return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
       '!' + paths.src.tmp + 'pages/**/*.test.js'
-    ])
+    ], tasksConfig['bundle-js:dev']))
     .pipe($.browserify({
       insertGlobals: false,
       debug: !gulp.env.production
     }))
     .pipe(gulp.dest(paths.out.js));
   });
-  gulp.task('bundle-mock-server', ['lint', 'esnext'], function() {
-    return gulp.src([paths.src.tmp + '/mock/server.js'])
-    .pipe($.browserify({
-      insertGlobals: false,
-      debug: true
-    }))
-    .pipe($.rename(function (path) {
-      path.basename = 'mock-server';
-    }))
-    .pipe(gulp.dest(paths.out.js));
-  });
+
 
   /* JS unit tests runner -------------------------------------------------- */
   gulp.task('karma', function() {
     return gulp.src([
-      'temp/vendor/handlebars.runtime.js',
-      'temp/**/*.test.js'
+      'tricky/freaky/trick/**/*.js'
     ])
     .pipe($.karma({
       configFile: 'karma.conf.js',
@@ -250,8 +260,7 @@ var gulpSetupTasks = function() {
   });
   gulp.task('karma:dev', function() {
     return gulp.src([
-      'temp/vendor/handlebars.runtime.js',
-      'temp/**/*.test.js'
+      'tricky/freaky/trick/**/*.js'
     ])
     .pipe($.karma({
       configFile: 'karma.conf.js',
@@ -294,21 +303,17 @@ var gulpSetupTasks = function() {
  * to add to the process.
  * @param  {list<function>} extraWatchers: List of extra watchers to add.
  */
-var gulpSetupWatchers = function(extraWatchers) {
+var gulpSetupWatchers = function(addExtraWatchers) {
   /* Watchers -------------------------------------------------------------- */
   gulp.task('watch', ['serve'], function () {
     gulp.watch(paths.src.es6, ['bundle-js:dev:clean']);
-    gulp.watch(paths.src.scripts + '*.js', ['bundle-js:dev:clean']);
-    gulp.watch(paths.src.scripts + '!(mock)/*.js', ['bundle-js:dev:clean']);
-    gulp.watch(paths.src.scripts + 'mock/*.js', ['lint', 'bundle-js:dev:clean']);
+    gulp.watch(paths.src.js, ['bundle-js:dev:clean']);
     gulp.watch(paths.src.styles, ['styles']);
     gulp.watch(paths.src.views, ['tpl-reload']);
     gulp.watch(paths.src.mocks, ['tpl-reload']);
     gulp.watch(paths.out.base + '**/*', ['reload']);
 
-    for (var i = 0, w; (w = extraWatchers[i]); i++) {
-      w(gulp);
-    }
+    addExtraWatchers && addExtraWatchers(gulp);
   });
 };
 

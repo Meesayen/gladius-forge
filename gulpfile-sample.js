@@ -1,3 +1,4 @@
+/* jshint -W079 */
 var
   gulp = require('gulp'),
   gulpBoilerplate = require('es6-gulp-boilerplate'),
@@ -5,8 +6,9 @@ var
 
 
 /**
- * Here you can configure the gulp build system with custom folders etc.
- */
+ * Here you can configure the gulp build system with custom folders, different
+ * build modules, etc.
+ * ------------------------------------------------------------------------- */
 gulpBoilerplate.config(gulp, {
   modules: {
     // module to use to preprocess your stylesheets. default: less
@@ -49,41 +51,51 @@ gulpBoilerplate.config(gulp, {
 });
 
 
-// TODO make it possible to hook into predefined tasks
-gulpBoilerplate.setupTasks();
 
 
 /**
- * Add extra gulp tasks below
- */
-
-/* Handlebars helpers bundling --------------------------------------------- */
-gulp.task('publish-helpers', function() {
-  return gulp.src(['handlebars.helpers.js'])
-  .pipe(gulpBoilerplate.getPlugins().uglify())
-  .pipe(gulp.dest('public/js/'));
+ * Here you can hook extra tasks as dependency for predefined tasks (insert
+ * a leading '!' to remove dependencies) or add additional sources (insert a
+ * leading '!' to the path to delcare sources which should be ignored).
+ * ------------------------------------------------------------------------- */
+gulpBoilerplate.setupTasks({
+  'bundle-js': {
+    deps: [],
+    src: []
+  },
+  'bundle-js:dev': {
+    deps: [],
+    src: []
+  },
+  'lint': {
+    deps: [],
+    src: []
+  }
 });
 
 
 /**
- * Add extra gulp watchers below
- */
-var extraWatchers = [
-  function(gulp) {
-    gulp.watch('handlebars.helpers.js', ['publish-helpers']);
-  }
-];
+ * Add extra gulp tasks below
+ * ------------------------------------------------------------------------- */
+var $ = gulpBoilerplate.getPlugins();
 
-gulpBoilerplate.setupWatchers(extraWatchers);
+// Check the Meesayen/es6-boilerplate repository on github for a sample usage.
+
+
+
+/**
+ * Here you plug additional watchers to gulp.
+ * ------------------------------------------------------------------------- */
+gulpBoilerplate.setupWatchers(function(gulp) {
+  // Add wathers here.
+});
 
 
 
 /**
  * Here you can inject extra tasks into the main tasks. Those will be appendend
  * and concurrently run with other tasks.
- * If you need to hook a particular task into another one, wait for the next
- * release of this build environment. :)
- */
+ * ------------------------------------------------------------------------- */
 gulpBoilerplate.setupMain({
   'development': [
     'publish-helpers'
