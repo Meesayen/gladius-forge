@@ -2,6 +2,7 @@
 var
   path = require('path'),
   $ = require('gulp-load-plugins')(),
+  del = require('del'),
   semver = require('semver');
 
 
@@ -113,9 +114,8 @@ var gulpConfig = function(_gulp, _config) {
       'An Express server should be passed in the configuration.')),
   serverport = _config.port || serverport;
 
-  cleanTmp = function() {
-    gulp.src(paths.src.tmp, {read: false})
-    .pipe($.rimraf());
+  cleanTmp = function(done) {
+    del(paths.src.tmp, done);
   };
 };
 
@@ -209,9 +209,9 @@ var gulpSetupTasks = function(tasksConfig) {
     }))
 
     // Needed to support IE8. Get rid of it ASAP.
-    .pipe($.replace(/\.catch/g, "['catch']"))
-    .pipe($.replace(/\.throw/g, "['throw']"))
-    .pipe($.replace(/\.return/g, "['return']"))
+    .pipe($.replace(/\.catch\b/g, "['catch']"))
+    .pipe($.replace(/\.throw\b/g, "['throw']"))
+    .pipe($.replace(/\.return\b/g, "['return']"))
 
     .pipe(gulp.dest(paths.src.tmp));
   });
@@ -359,6 +359,7 @@ module.exports = {
   setupMain: gulpSetupMainTasks,
   getPlugins: function() {
     return {
+      del: del,
       clean: $.clean,
       cached: $.cached,
       jshint: $.jshint,
