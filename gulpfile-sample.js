@@ -13,7 +13,10 @@ gulpBoilerplate.config(gulp, {
   modules: {
     // module to use to preprocess your stylesheets. default: less
     // possible values: less, sass, sassCompass, stylus, myth.
-    styles: 'less'
+    styles: '',
+    // module to use to preprocess your stylesheets. default: handlebars
+    // possible values: handlebars, jade, dust, dot.
+    templates: ''
   },
   paths: {
     src: {

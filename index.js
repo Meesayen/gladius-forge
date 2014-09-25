@@ -36,9 +36,9 @@ var elaboratePaths = function() {
       scripts: src.base + src.scripts,
       es6: src.base + src.scripts + '**/*.es6',
       js: src.base + src.scripts + '**/*.js',
-      views: src.base + src.views + '**/*.hbs',
+      views: src.base + src.views + '**/*' + plugins.tpls.ext,
       mocks: src.base + src.views + '**/*.json',
-      partials: src.base + src.views + src.partials + '**/*.hbs',
+      partials: src.base + src.views + src.partials + '**/*' + plugins.tpls.ext,
       tmp: src.base + 'temp/'
     },
     out: {
@@ -54,7 +54,7 @@ var elaboratePaths = function() {
 var elaboratePlugins = function() {
   return {
     styles: (function() {
-      var type = config.modules.styles;
+      var type = (config.modules && config.modules.styles) || 'less';
       return (type === 'less' && { ext: '.less', cmd: $['less'],
             config: { compress: true }
           }) ||
@@ -69,6 +69,23 @@ var elaboratePlugins = function() {
           }) ||
           (type === 'myth' && { ext: '.css', cmd: $['myth'],
             config: { sourcemap: true }
+          });
+    })(),
+    tpls: (function() {
+      var type = (config.modules && config.modules.templates) || 'handlebars';
+      return (type === 'handlebars' && { ext: '.hbs', cmd: $['handlebars'],
+            config: { }
+          }) ||
+          (type === 'jade' && { ext: '.jade', cmd: $['jade'],
+            config: { client: true }
+          }) ||
+          (type === 'dust' && { ext: '.html', cmd: $['dust'],
+            config: {
+              name: function(f) { return f.relative.replace('.html',''); }
+            }
+          }) ||
+          (type === 'dot' && { ext: '.dot', cmd: $['dotPrecompiler'],
+            config: { separator: '/', dictionary: 'R.templates', varname: 'it' }
           });
     })(),
   };
@@ -162,10 +179,14 @@ var gulpSetupTasks = function(tasksConfig) {
   /* Handlebars templates precompilation ----------------------------------- */
   gulp.task('tpl-precompile', function() {
     return gulp.src([paths.src.partials])
-    .pipe($.handlebars())
+    .pipe(plugins.tpls.cmd(plugins.tpls.config))
     .pipe($.defineModule('plain'))
     .pipe($.declare({
-      namespace: 'Handlebars.templates'
+      namespace: 'R.templates',
+      processName: function(file) {
+        return file.slice(file.indexOf(config.paths.src.partials) +
+            config.paths.src.partials.length).replace('.js', '');
+      }
     }))
     .pipe($.concat('templates.js'))
     .pipe(gulp.dest(paths.out.js));
