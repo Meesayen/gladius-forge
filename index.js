@@ -36,8 +36,7 @@ var elaboratePaths = function() {
       scripts: src.base + src.scripts,
       es6: src.base + src.scripts + '**/*.es6',
       js: src.base + src.scripts + '**/*.js',
-      views: src.base + src.views + '**/*' + plugins.tpls.ext,
-      mocks: src.base + src.views + '**/*.json',
+      views: src.base + src.views + '**/*',
       partials: src.base + src.views + src.partials + '**/*' + plugins.tpls.ext,
       tmp: src.base + 'temp/'
     },
@@ -194,10 +193,7 @@ var gulpSetupTasks = function(tasksConfig) {
 
   /* Handlebars template livereloading ------------------------------------- */
   gulp.task('tpl-reload', ['tpl-precompile'], function() {
-    return gulp.src([
-      paths.src.views,
-      paths.src.mocks
-    ])
+    return gulp.src([paths.src.views])
     .pipe($.livereload(lrport));
   });
 
@@ -331,7 +327,6 @@ var gulpSetupWatchers = function(addExtraWatchers) {
     gulp.watch(paths.src.js, ['bundle-js:dev:clean']);
     gulp.watch(paths.src.styles, ['styles']);
     gulp.watch(paths.src.views, ['tpl-reload']);
-    gulp.watch(paths.src.mocks, ['tpl-reload']);
     gulp.watch(paths.out.base + '**/*', ['reload']);
 
     addExtraWatchers && addExtraWatchers(gulp);
