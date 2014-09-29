@@ -221,6 +221,7 @@ var gulpSetupTasks = function(tasksConfig) {
       paths.src.es6
     ])
     .pipe($.esnext())
+    .on('error', $.util.log)
     .pipe($.es6ModuleTranspiler({
       type: 'cjs'
     }))
