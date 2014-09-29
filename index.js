@@ -240,24 +240,34 @@ var gulpSetupTasks = function(tasksConfig) {
       extendDeps(['esnext'], tasksConfig['bundle-js']), function() {
     return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
-      '!' + paths.src.tmp + 'pages/**/*.test.js'
+      paths.src.tmp + 'pages/**/*.es6',
+      '!' + paths.src.tmp + 'pages/**/*.test.js',
+      '!' + paths.src.tmp + 'pages/**/*.test.es6'
     ], tasksConfig['bundle-js']))
     .pipe($.browserify({
       insertGlobals: false,
       debug: !gulp.env.production
     }))
     .pipe($.uglify())
+    .pipe($.rename(function (path) {
+      path.extname = '.js';
+    }))
     .pipe(gulp.dest(paths.out.js));
   });
   gulp.task('bundle-js:dev',
       extendDeps(['esnext'], tasksConfig['bundle-js:dev']), function() {
     return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
-      '!' + paths.src.tmp + 'pages/**/*.test.js'
+      paths.src.tmp + 'pages/**/*.es6',
+      '!' + paths.src.tmp + 'pages/**/*.test.js',
+      '!' + paths.src.tmp + 'pages/**/*.test.es6'
     ], tasksConfig['bundle-js:dev']))
     .pipe($.browserify({
       insertGlobals: false,
       debug: !gulp.env.production
+    }))
+    .pipe($.rename(function (path) {
+      path.extname = '.js';
     }))
     .pipe(gulp.dest(paths.out.js));
   });
