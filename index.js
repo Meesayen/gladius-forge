@@ -17,6 +17,11 @@ var
   plugins = {};
 
 
+var handleError = function(message) {
+  $.util.log($.util.colors.red(message));
+  this.end();
+};
+
 // paths normalization helper
 var elaboratePaths = function() {
   var src = config.paths.src;
@@ -221,10 +226,13 @@ var gulpSetupTasks = function(tasksConfig) {
       paths.src.es6
     ])
     .pipe($.esnext())
-    .on('error', $.util.log)
+    .on('error', handleError)
     .pipe($.es6ModuleTranspiler({
       type: 'cjs'
     }))
+    .on('error', handleError)
+    .pipe($.jsvalidate())
+    .on('error', handleError)
 
     // Needed to support IE8. Get rid of it ASAP.
     .pipe($.replace(/\.catch\b/g, "['catch']"))
@@ -390,6 +398,7 @@ module.exports = {
       clean: $.clean,
       cached: $.cached,
       jshint: $.jshint,
+      jsvalidate: $.jsvalidate,
       esnext: $.esnext,
       es6ModuleTranspiler: $.es6ModuleTranspiler,
       rename: $.rename,
