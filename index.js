@@ -241,11 +241,11 @@ var gulpSetupTasks = function(tasksConfig) {
     return gulp.src([
       paths.src.es6
     ])
-    .pipe($.esnext())
-    .on('error', handleError)
     .pipe($.es6ModuleTranspiler({
       type: 'cjs'
     }))
+    .on('error', handleError)
+    .pipe($.esnext())
     .on('error', handleError)
     .pipe($.jsvalidate())
     .on('error', handleError)
