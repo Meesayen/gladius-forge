@@ -1,7 +1,6 @@
 /* jshint -W079 */
 var
   gulp = require('gulp'),
-  path = require('path'),
   semver = require('semver'),
   $ = require('gulp-load-plugins')();
 
@@ -10,7 +9,7 @@ var inc = function(importance) {
   .pipe($.bump({type: importance}))
   .pipe(gulp.dest('./'))
   .pipe($.git.commit('Release v' + semver.inc(
-      require(path.dirname(module.parent.filename) + '/package.json').version,
+      require(__dirname + '/package.json').version,
       importance)))
   .pipe($.tagVersion())
   .pipe($.git.push('origin', 'master', { args: '--tags' }));
