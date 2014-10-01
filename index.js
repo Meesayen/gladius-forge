@@ -147,9 +147,13 @@ var gulpConfig = function(_gulp, _config) {
 var gulpSetupTasks = function(tasksConfig) {
   /* Helpers --------------------------------------------------------------- */
   var inc = function(importance) {
-    return gulp.src(['./package.json'])
+    return gulp.src([
+      './package.json',
+      './bower.json'
+    ])
     .pipe($.bump({type: importance}))
     .pipe(gulp.dest('./'))
+    .pipe($.filter('package.json'))
     .pipe($.git.commit('Release v' + semver.inc(
         require(path.dirname(module.parent.filename) + '/package.json').version,
         importance)))
@@ -158,9 +162,9 @@ var gulpSetupTasks = function(tasksConfig) {
   };
 
   /* Version bumping ------------------------------------------------------- */
-  gulp.task('patch', function() { return inc('patch'); });
-  gulp.task('feature', function() { return inc('minor'); });
-  gulp.task('release', function() { return inc('major'); });
+  gulp.task('patch', ['lint:blocker'], function() { return inc('patch'); });
+  gulp.task('feature', ['lint:blocker'], function() { return inc('minor'); });
+  gulp.task('release', ['lint:blocker'], function() { return inc('major'); });
 
 
   /*
@@ -218,6 +222,18 @@ var gulpSetupTasks = function(tasksConfig) {
       lookup: true
     }))
     .pipe($.jshint.reporter('jshint-stylish'));
+  });
+  gulp.task('lint:blocker', extendDeps([], tasksConfig['lint']), function() {
+    return gulp.src(extendSrcs([
+      paths.src.js,
+      paths.src.es6
+    ], tasksConfig['lint']))
+    .pipe($.jshint({
+      lookup: true
+    }))
+    .pipe($.jshint.reporter('jshint-stylish'))
+    .pipe($.jshint.reporter('fail'))
+    .pipe($.jsvalidate());
   });
 
   /* ES6 Syntax transpilation ---------------------------------------------- */
