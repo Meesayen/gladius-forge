@@ -162,9 +162,15 @@ var gulpSetupTasks = function(tasksConfig) {
   };
 
   /* Version bumping ------------------------------------------------------- */
-  gulp.task('patch', ['lint:blocker'], function() { return inc('patch'); });
-  gulp.task('feature', ['lint:blocker'], function() { return inc('minor'); });
-  gulp.task('release', ['lint:blocker'], function() { return inc('major'); });
+  gulp.task('patch', ['lint:blocker', 'jsavalidate:blocker'], function() {
+    return inc('patch');
+  });
+  gulp.task('feature', ['lint:blocker', 'jsavalidate:blocker'], function() {
+    return inc('minor');
+  });
+  gulp.task('release', ['lint:blocker', 'jsavalidate:blocker'], function() {
+    return inc('major');
+  });
 
 
   /*
@@ -232,7 +238,16 @@ var gulpSetupTasks = function(tasksConfig) {
       lookup: true
     }))
     .pipe($.jshint.reporter('jshint-stylish'))
-    .pipe($.jshint.reporter('fail'))
+    .pipe($.jshint.reporter('fail'));
+  });
+
+  gulp.task('jsavalidate:blocker', ['esnext'], function () {
+    return gulp.src(extendSrcs([
+      paths.src.tmp + '**/*.js',
+      paths.src.tmp + '**/*.es6',
+      '!' + paths.src.tmp + '**/*.test.js',
+      '!' + paths.src.tmp + '**/*.test.es6'
+    ], tasksConfig['lint']))
     .pipe($.jsvalidate());
   });
 
