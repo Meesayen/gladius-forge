@@ -162,13 +162,13 @@ var gulpSetupTasks = function(tasksConfig) {
   };
 
   /* Version bumping ------------------------------------------------------- */
-  gulp.task('patch', ['lint:blocker', 'jsavalidate:blocker'], function() {
+  gulp.task('patch', ['lint:blocker', 'jsvalidate:blocker:clean'], function() {
     return inc('patch');
   });
-  gulp.task('feature', ['lint:blocker', 'jsavalidate:blocker'], function() {
+  gulp.task('feature', ['lint:blocker', 'jsvalidate:blocker:clean'], function() {
     return inc('minor');
   });
-  gulp.task('release', ['lint:blocker', 'jsavalidate:blocker'], function() {
+  gulp.task('release', ['lint:blocker', 'jsvalidate:blocker:clean'], function() {
     return inc('major');
   });
 
@@ -241,7 +241,7 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe($.jshint.reporter('fail'));
   });
 
-  gulp.task('jsavalidate:blocker', ['esnext'], function () {
+  gulp.task('jsvalidate:blocker', ['esnext'], function () {
     return gulp.src(extendSrcs([
       paths.src.tmp + '**/*.js',
       paths.src.tmp + '**/*.es6',
@@ -250,6 +250,9 @@ var gulpSetupTasks = function(tasksConfig) {
     ], tasksConfig['lint']))
     .pipe($.jsvalidate());
   });
+
+  gulp.task('jsvalidate:blocker:clean', ['jsvalidate:blocker'], cleanTmp);
+
 
   /* ES6 Syntax transpilation ---------------------------------------------- */
   gulp.task('esnext', ['copy'], function () {
@@ -353,6 +356,10 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe(gulp.dest(paths.src.tmp));
   });
 
+  gulp.task('bundle-js:clean', [
+    'bundle-js'
+  ], cleanTmp);
+
   gulp.task('bundle-js:dev:clean', [
     'bundle-js:dev'
   ], cleanTmp);
@@ -413,7 +420,7 @@ var gulpSetupMainTasks = function(extensions) {
 
   gulp.task('production', [
     'styles',
-    'bundle-js',
+    'bundle-js:clean',
     'tpl-precompile'
   ].concat(prodExts));
 };
