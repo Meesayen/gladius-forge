@@ -288,7 +288,7 @@ var gulpSetupTasks = function(tasksConfig) {
     ], tasksConfig['bundle-js']))
     .pipe($.browserify({
       insertGlobals: false,
-      debug: !gulp.env.production
+      debug: false
     }))
     .pipe($.uglify())
     .pipe($.rename(function (path) {
@@ -306,7 +306,7 @@ var gulpSetupTasks = function(tasksConfig) {
     ], tasksConfig['bundle-js:dev']))
     .pipe($.browserify({
       insertGlobals: false,
-      debug: !gulp.env.production
+      debug: true
     }))
     .pipe($.rename(function (path) {
       path.extname = '.js';
