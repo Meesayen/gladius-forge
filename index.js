@@ -193,6 +193,10 @@ var gulpSetupTasks = function(tasksConfig) {
   /* Handlebars templates precompilation ----------------------------------- */
   gulp.task('tpl-precompile', function() {
     return gulp.src([paths.src.partials])
+    .pipe($.htmlmin({
+      removeComments: true,
+      collapseWhitespace: true
+    }))
     .pipe(plugins.tpls.cmd(plugins.tpls.config))
     .pipe($.defineModule('plain'))
     .pipe($.declare({

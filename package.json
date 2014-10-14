@@ -57,6 +57,7 @@
     "gulp-filter": "^1.0.0",
     "gulp-git": "^0.5.0",
     "gulp-handlebars": "^2.1.0",
+    "gulp-htmlmin": "^0.2.0",
     "gulp-jade": "^0.8.0",
     "gulp-jshint": "^1.8.4",
     "gulp-jsvalidate": "^1.0.1",
