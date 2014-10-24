@@ -181,6 +181,7 @@ var gulpSetupTasks = function(tasksConfig) {
   gulp.task('styles', function() {
     return gulp.src([paths.src.styles])
     .pipe(plugins.styles.cmd(plugins.styles.config))
+    .on('error', handleError)
     .pipe($.autoprefixer('last 2 version', 'ie 8', 'ie 9'))
     .pipe(gulp.dest(paths.out.styles));
   });
@@ -198,6 +199,7 @@ var gulpSetupTasks = function(tasksConfig) {
       collapseWhitespace: true
     }))
     .pipe(plugins.tpls.cmd(plugins.tpls.config))
+    .on('error', handleError)
     .pipe($.defineModule('plain'))
     .pipe($.declare({
       namespace: 'R.templates',
@@ -294,6 +296,7 @@ var gulpSetupTasks = function(tasksConfig) {
       insertGlobals: false,
       debug: false
     }))
+    .on('error', handleError)
     .pipe($.uglify())
     .pipe($.rename(function (path) {
       path.extname = '.js';
@@ -312,6 +315,7 @@ var gulpSetupTasks = function(tasksConfig) {
       insertGlobals: false,
       debug: true
     }))
+    .on('error', handleError)
     .pipe($.rename(function (path) {
       path.extname = '.js';
     }))
