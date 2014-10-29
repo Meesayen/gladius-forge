@@ -98,6 +98,10 @@
     "karma-phantomjs-launcher": "^0.1.4",
     "mocha": "^1.21.4"
   },
+  "files": [
+    "gulpfile-sample.js",
+    "addons.json"
+  ],
   "bugs": {
     "url": "https://github.com/Meesayen/es6-gulp-boilerplate/issues"
   },
