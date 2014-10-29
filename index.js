@@ -1,9 +1,13 @@
 /* jshint -W079 */
 var
   path = require('path'),
-  $ = require('gulp-load-plugins')(),
+  $ = require('gulp-load-plugins')({
+    scope: ['dependencies', 'lazyDependencies']
+  }),
+  lazyDependencies = require('./package.json').lazyDependencies,
   del = require('del'),
-  semver = require('semver');
+  semver = require('semver'),
+  addons = require('./addons.json');
 
 
 var
@@ -30,8 +34,8 @@ var elaboratePaths = function() {
   src.base = src.base || 'src/';
   src.styles = src.styles || 'styles/';
   src.scripts = src.scripts || 'scripts/';
-  src.views = src.views || '../views/';
-  src.partials = src.partials || 'partials/';
+  src.views = src.templates || '../views/';
+  src.partials = src.partials !== null ? src.partials : 'partials/';
 
   out.base = out.base || 'public/';
 
@@ -59,38 +63,56 @@ var elaboratePlugins = function() {
   return {
     styles: (function() {
       var type = (config.modules && config.modules.styles) || 'less';
-      return (type === 'less' && { ext: '.less', cmd: $['less'],
-            config: { compress: true }
-          }) ||
-          (type === 'sass' && { ext: '.sass', cmd: $['rubySass'],
-            config: { style: 'compressed' }
-          }) ||
-          (type === 'sassCompass' && { ext: '.scss', cmd: $['rubySass'],
-            config: { style: 'compressed', compass: true }
-          }) ||
-          (type === 'stylus' && { ext: '.styl', cmd: $['stylus'],
-            config: { compress: true }
-          }) ||
-          (type === 'myth' && { ext: '.css', cmd: $['myth'],
-            config: { sourcemap: true }
-          });
+      return (type === 'less' && {
+          ext: '.less',
+          get cmd() { return $['less']; },
+          config: { compress: true }
+        }) ||
+        (type === 'sass' && {
+          ext: '.sass',
+          get cmd() { return $['rubySass']; },
+          config: { style: 'compressed' }
+        }) ||
+        (type === 'sassCompass' && {
+          ext: '.scss',
+          get cmd() { return $['rubySass']; },
+          config: { style: 'compressed', compass: true }
+        }) ||
+        (type === 'stylus' && {
+          ext: '.styl',
+          get cmd() { return $['stylus']; },
+          config: { compress: true }
+        }) ||
+        (type === 'myth' && {
+          ext: '.css',
+          get cmd() { return $['myth']; },
+          config: { sourcemap: true }
+        });
     })(),
     tpls: (function() {
       var type = (config.modules && config.modules.templates) || 'handlebars';
-      return (type === 'handlebars' && { ext: '.hbs', cmd: $['handlebars'],
-            config: { }
-          }) ||
-          (type === 'jade' && { ext: '.jade', cmd: $['jade'],
-            config: { client: true }
-          }) ||
-          (type === 'dust' && { ext: '.html', cmd: $['dust'],
-            config: {
-              name: function(f) { return f.relative.replace('.html',''); }
-            }
-          }) ||
-          (type === 'dot' && { ext: '.dot', cmd: $['dotPrecompiler'],
-            config: { separator: '/', dictionary: 'R.templates', varname: 'it' }
-          });
+      return (type === 'handlebars' && {
+          ext: '.hbs',
+          get cmd() { return $['handlebars']; },
+          config: { }
+        }) ||
+        (type === 'jade' && {
+          ext: '.jade',
+          get cmd() { return $['jade']; },
+          config: { client: true }
+        }) ||
+        (type === 'dust' && {
+          ext: '.html',
+          get cmd() { return $['dust']; },
+          config: {
+            name: function(f) { return f.relative.replace('.html',''); }
+          }
+        }) ||
+        (type === 'dot' && {
+          ext: '.dot',
+          get cmd() { return $['dotPrecompiler']; },
+          config: { separator: '/', dictionary: 'R.templates', varname: 'it' }
+        });
     })(),
   };
 };
@@ -162,22 +184,94 @@ var gulpSetupTasks = function(tasksConfig) {
   };
 
   /* Version bumping ------------------------------------------------------- */
-  gulp.task('patch', ['lint:blocker', 'jsvalidate:blocker:clean'], function() {
+  gulp.task('post-install-patch', [
+    'lint:blocker',
+    'jsvalidate:blocker:clean'
+  ], function() {
     return inc('patch');
   });
-  gulp.task('feature', ['lint:blocker', 'jsvalidate:blocker:clean'], function() {
+  gulp.task('post-install-feature', [
+    'lint:blocker',
+    'jsvalidate:blocker:clean'
+  ], function() {
     return inc('minor');
   });
-  gulp.task('release', ['lint:blocker', 'jsvalidate:blocker:clean'], function() {
+  gulp.task('post-install-release', [
+    'lint:blocker',
+    'jsvalidate:blocker:clean'
+  ], function() {
     return inc('major');
   });
+  gulp.task('patch', ['install-dev-dep'], function() {
+    return gulp.start('post-install-patch');
+  });
+  gulp.task('feature', ['install-dev-dep'], function() {
+    return gulp.start('post-install-feature');
+  });
+  gulp.task('release', ['install-dev-dep'], function() {
+    return gulp.start('post-install-release');
+  });
 
+
+  /*
+    PLUGINS LOADING
+                    */
+
+  var originalPackageJson;
+  var cleanPackageJson = function() {
+    return gulp.src(['./package.json'])
+    .pipe($.jsonEditor(function(){
+      return originalPackageJson;
+    }, {
+      'end_with_newline': true
+    }))
+    .pipe(gulp.dest('./'));
+  };
+
+  /* Lazy dependencies installation ---------------------------------------- */
+  gulp.task('dirty-install-dep', function() {
+    return gulp.src(['./package.json'])
+    .pipe($.jsonEditor(function(json) {
+      var
+        tplName = addons.templates[
+          (config.modules && config.modules.templates) || 'handlebars'
+        ].name,
+        styleName = addons.styles[
+          (config.modules && config.modules.styles) || 'less'
+        ].name;
+      originalPackageJson = JSON.parse(JSON.stringify(json));
+      json.dependencies[tplName] = lazyDependencies[tplName];
+      json.dependencies[styleName] = lazyDependencies[styleName];
+      return json;
+    }))
+    .on('error', handleError)
+    .pipe(gulp.dest('./'))
+    .pipe($.install())
+    .on('error', handleError);
+  });
+  gulp.task('install-dep', ['dirty-install-dep'], cleanPackageJson);
+
+  /* Lazy dev dependencies installation ------------------------------------ */
+  gulp.task('dirty-install-dev-dep', ['dirty-install-dep'], function() {
+    return gulp.src(['./package.json'])
+    .pipe($.jsonEditor(function(json) {
+      addons.dev.forEach(function(moduleName) {
+        json.dependencies[moduleName] = lazyDependencies[moduleName];
+      });
+      return json;
+    }))
+    .on('error', handleError)
+    .pipe(gulp.dest('./'))
+    .pipe($.install())
+    .on('error', handleError);
+  });
+  gulp.task('install-dev-dep', ['dirty-install-dev-dep'], cleanPackageJson);
 
   /*
     CSS TASKS
               */
 
-  /* Styles compilation ------------------------------------------------------ */
+  /* Styles compilation ---------------------------------------------------- */
   gulp.task('styles', function() {
     return gulp.src([paths.src.styles])
     .pipe(plugins.styles.cmd(plugins.styles.config))
@@ -204,8 +298,8 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe($.declare({
       namespace: 'R.templates',
       processName: function(file) {
-        return file.slice(file.indexOf(config.paths.src.partials) +
-            config.paths.src.partials.length).replace('.js', '');
+        var dir = config.paths.src.partials || config.paths.src.templates;
+        return file.slice(file.indexOf(dir) + dir.length).replace('.js', '');
       }
     }))
     .pipe($.concat('templates.js'))
@@ -413,24 +507,33 @@ var gulpSetupMainTasks = function(extensions) {
 
   gulp.task('default', ['development']);
 
-  gulp.task('development', [
+  gulp.task('post-install-development', [
     'karma:dev',
     'styles',
     'bundle-js:dev:clean',
     'tpl-precompile',
     'watch'
   ].concat(devExts));
+  gulp.task('development', ['install-dev-dep'], function() {
+    gulp.start('post-install-development');
+  });
 
-  gulp.task('test', [
+  gulp.task('post-install-test', [
     'lint',
     'karma'
   ].concat(testExts), cleanTmp);
+  gulp.task('test', ['install-dev-dep'], function() {
+    gulp.start('post-install-test');
+  });
 
-  gulp.task('production', [
+  gulp.task('post-install-production', [
     'styles',
     'bundle-js:clean',
     'tpl-precompile'
   ].concat(prodExts));
+  gulp.task('production', ['install-dep'], function() {
+    gulp.start('post-install-production');
+  });
 };
 
 module.exports = {
@@ -440,29 +543,29 @@ module.exports = {
   setupMain: gulpSetupMainTasks,
   getPlugins: function() {
     return {
-      del: del,
-      clean: $.clean,
-      cached: $.cached,
-      jshint: $.jshint,
-      jsvalidate: $.jsvalidate,
-      esnext: $.esnext,
-      es6ModuleTranspiler: $.es6ModuleTranspiler,
-      rename: $.rename,
-      styles: plugins.styles.cmd,
-      karma: $.karma,
-      uglify: $.uglify,
-      replace: $.replace,
-      livereload: $.livereload,
-      autoprefix: $.autoprefixer,
-      browserify: $.browserify,
-      handlebars: $.handlebars,
-      defineModule: $.defineModule,
-      declare: $.declare,
-      concat: $.concat,
-      git: $.git,
-      bump: $.bump,
-      semver: semver,
-      tagVersion: $.tagVersion
+      get del () { return del; },
+      get clean() { return $.clean; },
+      get cached() { return $.cached; },
+      get jshint() { return $.jshint; },
+      get jsvalidate() { return $.jsvalidate; },
+      get esnext() { return $.esnext; },
+      get es6ModuleTranspiler() { return $.es6ModuleTranspiler; },
+      get rename() { return $.rename; },
+      get styles() { return plugins.styles.cmd; },
+      get karma() { return $.karma; },
+      get uglify() { return $.uglify; },
+      get replace() { return $.replace; },
+      get livereload() { return $.livereload; },
+      get autoprefix() { return $.autoprefixer; },
+      get browserify() { return $.browserify; },
+      get handlebars() { return $.handlebars; },
+      get defineModule() { return $.defineModule; },
+      get declare() { return $.declare; },
+      get concat() { return $.concat; },
+      get git() { return $.git; },
+      get bump() { return $.bump; },
+      get semver() { return semver; },
+      get tagVersion() { return $.tagVersion; }
     };
   }
 };

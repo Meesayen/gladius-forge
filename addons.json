@@ -1,0 +1,56 @@
+{
+  "styles": {
+    "less": {
+      "name": "gulp-less"
+    },
+    "sass": {
+      "name": "gulp-ruby-sass"
+    },
+    "sassCompass": {
+      "name": "gulp-ruby-sass"
+    },
+    "stylus": {
+      "name": "gulp-stylus"
+    },
+    "myth": {
+      "name": "gulp-myth"
+    }
+  },
+  "templates": {
+    "handlebars": {
+      "name": "gulp-handlebars"
+    },
+    "jade": {
+      "name": "gulp-jade"
+    },
+    "dust": {
+      "name": "gulp-dust"
+    },
+    "dot": {
+      "name": "gulp-dot-precompiler"
+    }
+  },
+  "dev": [
+    "karma",
+    "karma-bro",
+    "karma-chai",
+    "karma-chrome-launcher",
+    "karma-handlebars-preprocessor",
+    "karma-junit-reporter",
+    "karma-mocha",
+    "karma-mocha-reporter",
+    "karma-phantomjs-launcher",
+    "mocha",
+    "browserify",
+    "esnextify",
+    "gulp-bump",
+    "gulp-git",
+    "gulp-jshint",
+    "gulp-karma",
+    "gulp-filter",
+    "gulp-watch",
+    "gulp-livereload",
+    "gulp-tag-version",
+    "jshint-stylish"
+  ]
+}

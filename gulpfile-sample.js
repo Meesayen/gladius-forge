@@ -31,7 +31,7 @@ gulpBoilerplate.config(gulp, {
 
       // templates and partials folder: default: ../views/, partials/
       templates: '',
-      partials: ''
+      partials: null
     },
 
     out: {
