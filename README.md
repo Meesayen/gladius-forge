@@ -88,4 +88,32 @@ be installed for the `production` task, that reflects on an massive reduction of
 the installation footprint on production environment.
 
 
+Thanks
+---------------------
+
+This boilerplate of mine is just a combination of great tools put together to
+achieve higher goals (using cutting edge technologies today, greatly simplifying
+a developer's workflow, etc), and if it weren't for the people who built those
+tools, I wouldn't have made this little thing so far.
+
+So, thanks goes to:
+
+- [esnext][2] developers and contributors, that are giving us the possibility to use
+  ES6 syntax today, in the most lightweight way possible.
+- Facebook developers working on the [Regenerator][3] compiler, that are giving ES6
+  generators to us, today (also `async` and `await` statements <3).
+- The [Gulp][4] developers. Keep up the good work, looking forward for the v4.0.
+- People behind [Browserify][5], because CommonJS is the right thing!
+- [Karma][6], [JSHint][7] and [gulp-jsvalidate][8] developers, keeping our code safe.
+- All the great guys that brought to us those awesome gulp plugins, the list is
+  long, so thank you all.
+
+
 [1]:http://github.com/Meesayen/es6-boilerplate
+[2]:http://github.com/esnext/esnext
+[3]:http://github.com/facebook/regenerator
+[4]:http://github.com/gulpjs/gulp
+[5]:http://github.com/substack/node-browserify
+[6]:http://github.com/karma-runner/karma
+[7]:http://github.com/jshint/jshint
+[8]:http://github.com/sindresorhus/gulp-jsvalidate
