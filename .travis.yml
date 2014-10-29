@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+- '0.11'
+- '0.10'
+deploy:
+  provider: npm
+  email: gvg.fede@gmail.com
+  api_key:
+    secure: TuQiiBb4Az1OmtWMcPCwyyDvbMijah1tU9gJDF7EyzcP1gNatf3BzeEW0sMK5VFcj5ETe5yPuRbmF7VNziZvCmEw4RxufOCerZ2ADR7D9hlmBGBqiO6oGVhwAbXUjm0jvKRQ6iFO75DNA830k5I45kQsxPWEIOELyJWL1j64q00=
+  on:
+    tags: true
+    repo: Meesayen/es6-gulp-boilerplate
+    all_branches: true
