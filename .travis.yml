@@ -6,7 +6,7 @@ deploy:
   provider: npm
   email: gvg.fede@gmail.com
   api_key:
-    secure: TuQiiBb4Az1OmtWMcPCwyyDvbMijah1tU9gJDF7EyzcP1gNatf3BzeEW0sMK5VFcj5ETe5yPuRbmF7VNziZvCmEw4RxufOCerZ2ADR7D9hlmBGBqiO6oGVhwAbXUjm0jvKRQ6iFO75DNA830k5I45kQsxPWEIOELyJWL1j64q00=
+    secure: BzT8uo/EMU7XW/5jl7EeITW6OGEScQ+tk1ndubdpScf1vnHoYsuyYBGsEkPJ16HXBcjVcCmE3bmGcBejRgviwQToJaYU3MRCWIo8jYkaDDieIoTMavdhKdyPTz7yIBT+FNx72SxBlEBb4y1WT/rC+mNFQJG4rCPqKdg9thzMIFg=
   on:
     tags: true
     repo: Meesayen/es6-gulp-boilerplate
