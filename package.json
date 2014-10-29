@@ -1,6 +1,6 @@
 {
   "name": "es6-gulp-boilerplate",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Prebuilt gulp environment for ES6 web app boilerplate. (I need to find a better name, I know.)",
   "license": "MIT",
   "author": {
@@ -11,7 +11,8 @@
     "node": ">=0.10.0"
   },
   "files": [
-    "index.js"
+    "gulpfile-sample.js",
+    "addons.json"
   ],
   "repository": {
     "type": "git",
@@ -98,10 +99,6 @@
     "karma-phantomjs-launcher": "^0.1.4",
     "mocha": "^1.21.4"
   },
-  "files": [
-    "gulpfile-sample.js",
-    "addons.json"
-  ],
   "bugs": {
     "url": "https://github.com/Meesayen/es6-gulp-boilerplate/issues"
   },
