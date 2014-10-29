@@ -11,6 +11,7 @@
     "node": ">=0.10.0"
   },
   "files": [
+    "index.js",
     "gulpfile-sample.js",
     "addons.json"
   ],
