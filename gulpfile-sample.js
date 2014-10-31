@@ -29,6 +29,9 @@ gulpBoilerplate.config(gulp, {
       // scripts folder. default: scripts/
       scripts: '',
 
+      // file extension for es6+ scripts. default: .es6
+      esnextExtension: '',
+
       // templates and partials folder: default: ../views/, partials/
       templates: '',
       partials: null

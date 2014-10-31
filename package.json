@@ -75,7 +75,7 @@
     "esnextify": "^0.1.1",
     "gulp-dot-precompiler": "^0.3.0",
     "gulp-dust": "^1.0.1",
-    "gulp-handlebars": "^2.1.0",
+    "gulp-handlebars": "^3.0.1",
     "gulp-jade": "^0.8.0",
     "gulp-less": "^1.3.3",
     "gulp-myth": "^1.0.1",

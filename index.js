@@ -34,6 +34,7 @@ var elaboratePaths = function() {
   src.base = src.base || 'src/';
   src.styles = src.styles || 'styles/';
   src.scripts = src.scripts || 'scripts/';
+  src.esnextExtension = src.esnextExtension || '.es6';
   src.views = src.templates || '../views/';
   src.partials = src.partials !== null ? src.partials : 'partials/';
 
@@ -43,7 +44,8 @@ var elaboratePaths = function() {
     src: {
       styles: src.base + src.styles + '**/*' + plugins.styles.ext,
       scripts: src.base + src.scripts,
-      es6: src.base + src.scripts + '**/*.es6',
+      es6: src.base + src.scripts + '**/*' + src.esnextExtension,
+      esnextExt: src.esnextExtension,
       js: src.base + src.scripts + '**/*.js',
       views: src.base + src.views + '**/*',
       partials: src.base + src.views + src.partials + '**/*' + plugins.tpls.ext,
@@ -344,9 +346,9 @@ var gulpSetupTasks = function(tasksConfig) {
   gulp.task('jsvalidate:blocker', ['esnext'], function () {
     return gulp.src(extendSrcs([
       paths.src.tmp + '**/*.js',
-      paths.src.tmp + '**/*.es6',
+      paths.src.tmp + '**/*' + paths.src.esnextExt,
       '!' + paths.src.tmp + '**/*.test.js',
-      '!' + paths.src.tmp + '**/*.test.es6'
+      '!' + paths.src.tmp + '**/*.test' + paths.src.esnextExt
     ], tasksConfig['lint']))
     .pipe($.jsvalidate());
   });
@@ -369,9 +371,7 @@ var gulpSetupTasks = function(tasksConfig) {
     .on('error', handleError)
 
     // Needed to support IE8. Get rid of it ASAP.
-    .pipe($.replace(/\.catch\b/g, "['catch']"))
-    .pipe($.replace(/\.throw\b/g, "['throw']"))
-    .pipe($.replace(/\.return\b/g, "['return']"))
+    .pipe($.replace(/\.(catch|throw|return|default)\b/g, "['$1']"))
 
     .pipe(gulp.dest(paths.src.tmp));
   });
@@ -382,9 +382,9 @@ var gulpSetupTasks = function(tasksConfig) {
       extendDeps(['esnext'], tasksConfig['bundle-js']), function() {
     return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
-      paths.src.tmp + 'pages/**/*.es6',
+      paths.src.tmp + 'pages/**/*' + paths.src.esnextExt,
       '!' + paths.src.tmp + 'pages/**/*.test.js',
-      '!' + paths.src.tmp + 'pages/**/*.test.es6'
+      '!' + paths.src.tmp + 'pages/**/*.test' + paths.src.esnextExt
     ], tasksConfig['bundle-js']))
     .pipe($.browserify({
       insertGlobals: false,
@@ -401,9 +401,9 @@ var gulpSetupTasks = function(tasksConfig) {
       extendDeps(['esnext'], tasksConfig['bundle-js:dev']), function() {
     return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
-      paths.src.tmp + 'pages/**/*.es6',
+      paths.src.tmp + 'pages/**/*' + paths.src.esnextExt,
       '!' + paths.src.tmp + 'pages/**/*.test.js',
-      '!' + paths.src.tmp + 'pages/**/*.test.es6'
+      '!' + paths.src.tmp + 'pages/**/*.test' + paths.src.esnextExt
     ], tasksConfig['bundle-js:dev']))
     .pipe($.browserify({
       insertGlobals: false,
