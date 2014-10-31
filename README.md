@@ -1,10 +1,11 @@
 es6-gulp-boilerplate
 =================
 
-Prebuilt Gulp environment for ES6 web app boilerplates.
+Prebuilt Gulp environment for ES6+ web app boilerplates.
 
-It comes with an ES6 to ES5-ish (as IE8 compatible as possible) compilation
-process, together with a Browserify bundling and Uglifyjs compression.
+It comes with an ES6+ (ES7 async/await are there) to ES3-ish (as IE8 compatible
+as possible, but you may have to import polyfills, shims and shams accordingly)
+compilation process, together with a Browserify bundling and Uglifyjs compression.
 
 Plus a CSS compilation task, to choose from one of the following:
 
@@ -23,7 +24,7 @@ Also, templates precompilation process, to choose from one of the following:
 - Dot.js
 - Jade
 
-the task compiles templates in JST format, namespaces them under a `R.templates`
+the task compiles templates in JST format, namespaces them under an `R.templates`
 globally accessible variable and serves it to you in the form of a `template.js`
 module inside your static scripts folder.
 
