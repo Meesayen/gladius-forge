@@ -292,7 +292,7 @@ var gulpSetupTasks = function(tasksConfig) {
     return gulp.src([paths.src.partials])
     .pipe($.htmlmin({
       removeComments: true,
-      collapseWhitespace: true
+      collapseWhitespace: plugins.tpls.ext === '.jade' ? false : true
     }))
     .pipe(plugins.tpls.cmd(plugins.tpls.config))
     .on('error', handleError)
