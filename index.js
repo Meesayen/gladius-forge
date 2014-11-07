@@ -380,11 +380,14 @@ var gulpSetupTasks = function(tasksConfig) {
   /* JS modules bundling --------------------------------------------------- */
   gulp.task('bundle-js',
       extendDeps(['esnext'], tasksConfig['bundle-js']), function() {
+    var
+      ext = paths.src.esnextExt,
+      extPrefix = ext.slice(0, ext.lastIndexOf('.'));
     return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
-      paths.src.tmp + 'pages/**/*' + paths.src.esnextExt,
+      paths.src.tmp + 'pages/**/*' + ext,
       '!' + paths.src.tmp + 'pages/**/*.test.js',
-      '!' + paths.src.tmp + 'pages/**/*.test' + paths.src.esnextExt
+      '!' + paths.src.tmp + 'pages/**/*.test' + ext
     ], tasksConfig['bundle-js']))
     .pipe($.browserify({
       insertGlobals: false,
@@ -393,17 +396,22 @@ var gulpSetupTasks = function(tasksConfig) {
     .on('error', handleError)
     .pipe($.uglify())
     .pipe($.rename(function (path) {
+      var n = path.basename;
+      path.basename = n.slice(0, n.lastIndexOf(extPrefix));
       path.extname = '.js';
     }))
     .pipe(gulp.dest(paths.out.js));
   });
   gulp.task('bundle-js:dev',
       extendDeps(['esnext'], tasksConfig['bundle-js:dev']), function() {
+    var
+      ext = paths.src.esnextExt,
+      extPrefix = ext.slice(0, ext.lastIndexOf('.'));
     return gulp.src(extendSrcs([
       paths.src.tmp + 'pages/**/*.js',
-      paths.src.tmp + 'pages/**/*' + paths.src.esnextExt,
+      paths.src.tmp + 'pages/**/*' + ext,
       '!' + paths.src.tmp + 'pages/**/*.test.js',
-      '!' + paths.src.tmp + 'pages/**/*.test' + paths.src.esnextExt
+      '!' + paths.src.tmp + 'pages/**/*.test' + ext
     ], tasksConfig['bundle-js:dev']))
     .pipe($.browserify({
       insertGlobals: false,
@@ -411,6 +419,8 @@ var gulpSetupTasks = function(tasksConfig) {
     }))
     .on('error', handleError)
     .pipe($.rename(function (path) {
+      var n = path.basename;
+      path.basename = n.slice(0, n.lastIndexOf(extPrefix));
       path.extname = '.js';
     }))
     .pipe(gulp.dest(paths.out.js));
