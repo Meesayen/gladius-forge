@@ -1,6 +1,6 @@
 {
   "name": "es6-gulp-boilerplate",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Prebuilt gulp environment for ES6 web app boilerplate. (I need to find a better name, I know.)",
   "license": "MIT",
   "author": {
