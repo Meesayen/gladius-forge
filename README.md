@@ -1,6 +1,9 @@
 gladius-forge
 =================
 
+[![Build Status](https://travis-ci.org/Meesayen/gladius-forge.svg?branch=master)](https://travis-ci.org/Meesayen/gladius-forge) [![dependency Status](https://david-dm.org/Meesayen/gladius-forge/status.svg?style=flat)](https://david-dm.org/Meesayen/gladius-forge) [![devDependency Status](https://david-dm.org/Meesayen/gladius-forge/dev-status.svg?style=flat)](https://david-dm.org/Meesayen/gladius-forge#info=devDependencies)
+
+
 Prebuilt Gulp environment for cutting edge web app boilerplates.
 
 Why Gladius? Because I wanted to emphasize the "bleeding edge" aspect of this
@@ -51,7 +54,7 @@ plus watchers and livereloading for, well, everything really.
 Usage
 -------------------
 
-The easiest way to use `gladius-forge` is via the [sluch-gladius][9] slush generator,
+The easiest way to use `gladius-forge` is via the [slush-gladius][9] slush generator,
 otherwise proceed manually, folling the instructions below.
 
 Install `gladius-forge` into your project directory:

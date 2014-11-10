@@ -61,7 +61,7 @@
     "gulp-util": "^3.0.1",
     "gulp-json-editor": "^2.1.0",
     "gulp-install": "^0.2.0",
-    "semver": "^3.0.1"
+    "semver": "^4.1.0"
   },
   "devDependencies": {
     "gulp": "^3.8.8",
@@ -88,7 +88,7 @@
     "gulp-livereload": "^2.1.0",
     "gulp-tag-version": "^1.1.0",
     "gulp-watch": "^1.0.0",
-    "jshint-stylish": "^0.4.0",
+    "jshint-stylish": "^1.0.0",
     "karma": "^0.12.21",
     "karma-bro": "^0.6.2",
     "karma-chai": "^0.1.0",
