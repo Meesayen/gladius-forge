@@ -1,7 +1,7 @@
 {
-  "name": "es6-gulp-boilerplate",
+  "name": "gladius-forge",
   "version": "0.7.2",
-  "description": "Prebuilt gulp environment for ES6 web app boilerplate. (I need to find a better name, I know.)",
+  "description": "Prebuilt gulp environment for ES6 web app boilerplate.",
   "license": "MIT",
   "author": {
     "name": "Federico Giovagnoli",
@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/Meesayen/es6-gulp-boilerplate.git"
+    "url": "git://github.com/Meesayen/gladius-forge.git"
   },
   "keywords": [
     "esnext",
@@ -101,8 +101,8 @@
     "mocha": "^1.21.4"
   },
   "bugs": {
-    "url": "https://github.com/Meesayen/es6-gulp-boilerplate/issues"
+    "url": "https://github.com/Meesayen/gladius-forge/issues"
   },
   "readmeFilename": "README.md",
-  "homepage": "https://github.com/Meesayen/es6-gulp-boilerplate"
+  "homepage": "https://github.com/Meesayen/gladius-forge"
 }

@@ -75,7 +75,7 @@ var elaboratePlugins = function() {
           get cmd() { return $['rubySass']; },
           config: { style: 'compressed' }
         }) ||
-        (type === 'sassCompass' && {
+        (type === 'scssCompass' && {
           ext: '.scss',
           get cmd() { return $['rubySass']; },
           config: { style: 'compressed', compass: true }
@@ -143,7 +143,7 @@ var extendSrcs = function(srcs, extra) {
 
 
 /**
- * Gulp Boilerplate configuration function.
+ * Gladius Forge configuration function.
  * @param  {Object} _gulp: The gulp instance created from the gulpfile.js
  * @param  {Object} config: Configuration object
  */
@@ -166,7 +166,7 @@ var gulpConfig = function(_gulp, _config) {
 
 
 /**
- * Gulp Boilerplate default tasks setup function.
+ * Gladius Forge default tasks setup function.
  */
 var gulpSetupTasks = function(tasksConfig) {
   /* Helpers --------------------------------------------------------------- */
@@ -485,7 +485,7 @@ var gulpSetupTasks = function(tasksConfig) {
 
 
 /**
- * Gulp Boilerplate watchers setup function. It takes a list of extra watchers
+ * Gladius Forge watchers setup function. It takes a list of extra watchers
  * to add to the process.
  * @param  {list<function>} extraWatchers: List of extra watchers to add.
  */
@@ -504,7 +504,7 @@ var gulpSetupWatchers = function(addExtraWatchers) {
 
 
 /**
- * Gulp Boilerplate main tasks setup function. It can extend main tasks with
+ * Gladius Forge main tasks setup function. It can extend main tasks with
  * extra externally defined tasks via an "extension" parameter.
  * @param  {Object} extensions: object descriptor of extra tasks to add for
  *                              each main task.

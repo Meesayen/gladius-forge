@@ -1,7 +1,11 @@
-es6-gulp-boilerplate
+gladius-forge
 =================
 
-Prebuilt Gulp environment for ES6+ web app boilerplates.
+Prebuilt Gulp environment for cutting edge web app boilerplates.
+
+Why Gladius? Because I wanted to emphasize the "bleeding edge" aspect of this
+tool, and what's better than a sword name to describe cutting edges? Plus I'm
+roman, hence "Gladius" (and also because Katana was already taken :P)
 
 It comes with an ES6+ (ES7 async/await are there) to ES3-ish (as IE8 compatible
 as possible, but you may have to import polyfills, shims and shams accordingly)
@@ -10,8 +14,8 @@ compilation process, together with a Browserify bundling and Uglifyjs compressio
 Plus a CSS compilation task, to choose from one of the following:
 
 - LESS
-- SASS
-- SASS + Compass
+- Sass
+- SCSS + Compass
 - Myth
 - Stylus
 
@@ -39,7 +43,6 @@ plus watchers and livereloading for, well, everything really.
 
 **TODO:**
 
-- Find a better name.
 - Split compiled templates on a per-page basis (base folder separation).
 - Introduce a super light static page server (now it relies on the final user
   to feed it one)
@@ -48,11 +51,20 @@ plus watchers and livereloading for, well, everything really.
 Usage
 -------------------
 
-Copy the `gulpfile-sample.js` in your app folder and configure it the way you
-like. The configuration is pretty straightforward and the comments will help you
-out on every bits of it.
+The easiest way to use `gladius-forge` is via the [sluch-gladius][9] slush generator,
+otherwise proceed manually, folling the instructions below.
 
-You can also take a look at the [es6-boilerplate][1]'s `gulpfile.js` to see how
+Install `gladius-forge` into your project directory:
+
+```
+npm install --save gladius-forge
+```
+
+Copy the `gulpfile-sample.js` from `node_modules/gladius-forge` into your app folder
+and configure it the way you like. The configuration is pretty straightforward and
+the comments will help you out on every bits of it.
+
+You can also take a look at the [gladius-draft][1]'s `gulpfile.js` to see how
 you can extend default tasks, add your own tasks or watchers, etc.
 
 By default, the boilerplate will come with the following tasks, which you can
@@ -110,7 +122,7 @@ So, thanks goes to:
   long, so thank you all.
 
 
-[1]:http://github.com/Meesayen/es6-boilerplate
+[1]:http://github.com/Meesayen/gladius-draft
 [2]:http://github.com/esnext/esnext
 [3]:http://github.com/facebook/regenerator
 [4]:http://github.com/gulpjs/gulp
@@ -118,3 +130,4 @@ So, thanks goes to:
 [6]:http://github.com/karma-runner/karma
 [7]:http://github.com/jshint/jshint
 [8]:http://github.com/sindresorhus/gulp-jsvalidate
+[9]:http://github.com/Meesayen/slush-gladius
