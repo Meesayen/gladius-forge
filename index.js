@@ -361,8 +361,8 @@ var gulpSetupTasks = function(tasksConfig) {
     return gulp.src([
       paths.src.es6
     ])
-    .pipe($.es6ModuleTranspiler({
-      type: 'cjs'
+    .pipe($.es6mt({
+      formatter: new $.es6mt.formatters.commonjs()
     }))
     .on('error', handleError)
     .pipe($.esnext())
