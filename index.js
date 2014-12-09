@@ -227,7 +227,7 @@ var gulpSetupTasks = function(tasksConfig) {
     }, {
       'end_with_newline': true
     }))
-    .pipe(gulp.dest('./'));
+    .pipe(gulp.dest(__dirname + '/'));
   };
 
   /* Lazy dependencies installation ---------------------------------------- */
@@ -247,7 +247,7 @@ var gulpSetupTasks = function(tasksConfig) {
       return json;
     }))
     .on('error', handleError)
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest(__dirname + '/'))
     .pipe($.install())
     .on('error', handleError);
   });
@@ -263,7 +263,7 @@ var gulpSetupTasks = function(tasksConfig) {
       return json;
     }))
     .on('error', handleError)
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest(__dirname + '/'))
     .pipe($.install())
     .on('error', handleError);
   });
