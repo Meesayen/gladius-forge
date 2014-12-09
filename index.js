@@ -221,7 +221,7 @@ var gulpSetupTasks = function(tasksConfig) {
 
   var originalPackageJson;
   var cleanPackageJson = function() {
-    return gulp.src(['./package.json'])
+    return gulp.src([__dirname + '/package.json'])
     .pipe($.jsonEditor(function(){
       return originalPackageJson;
     }, {
@@ -232,7 +232,7 @@ var gulpSetupTasks = function(tasksConfig) {
 
   /* Lazy dependencies installation ---------------------------------------- */
   gulp.task('dirty-install-dep', function() {
-    return gulp.src(['./package.json'])
+    return gulp.src([__dirname + '/package.json'])
     .pipe($.jsonEditor(function(json) {
       var
         tplName = addons.templates[
@@ -255,7 +255,7 @@ var gulpSetupTasks = function(tasksConfig) {
 
   /* Lazy dev dependencies installation ------------------------------------ */
   gulp.task('dirty-install-dev-dep', ['dirty-install-dep'], function() {
-    return gulp.src(['./package.json'])
+    return gulp.src([__dirname + '/package.json'])
     .pipe($.jsonEditor(function(json) {
       addons.dev.forEach(function(moduleName) {
         json.dependencies[moduleName] = lazyDependencies[moduleName];
@@ -511,6 +511,7 @@ var gulpSetupWatchers = function(addExtraWatchers) {
  */
 var gulpSetupMainTasks = function(extensions) {
   var
+    extensions = extensions || {},
     devExts = extensions.development || [],
     testExts = extensions.test || [],
     prodExts = extensions.production || [];
