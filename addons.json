@@ -43,14 +43,9 @@
     "mocha",
     "browserify",
     "esnextify",
-    "gulp-bump",
-    "gulp-git",
-    "gulp-jshint",
     "gulp-karma",
     "gulp-filter",
     "gulp-watch",
-    "gulp-livereload",
-    "gulp-tag-version",
-    "jshint-stylish"
+    "gulp-livereload"
   ]
 }

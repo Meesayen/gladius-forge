@@ -67,27 +67,27 @@ var elaboratePlugins = function() {
       var type = (config.modules && config.modules.styles) || 'less';
       return (type === 'less' && {
           ext: '.less',
-          get cmd() { return $['less']; },
+          get cmd() { return $.less; },
           config: { compress: true }
         }) ||
         (type === 'sass' && {
           ext: '.sass',
-          get cmd() { return $['rubySass']; },
+          get cmd() { return $.rubySass; },
           config: { style: 'compressed' }
         }) ||
         (type === 'scssCompass' && {
           ext: '.scss',
-          get cmd() { return $['rubySass']; },
+          get cmd() { return $.rubySass; },
           config: { style: 'compressed', compass: true }
         }) ||
         (type === 'stylus' && {
           ext: '.styl',
-          get cmd() { return $['stylus']; },
+          get cmd() { return $.stylus; },
           config: { compress: true }
         }) ||
         (type === 'myth' && {
           ext: '.css',
-          get cmd() { return $['myth']; },
+          get cmd() { return $.myth; },
           config: { sourcemap: true }
         });
     })(),
@@ -95,24 +95,24 @@ var elaboratePlugins = function() {
       var type = (config.modules && config.modules.templates) || 'handlebars';
       return (type === 'handlebars' && {
           ext: '.hbs',
-          get cmd() { return $['handlebars']; },
+          get cmd() { return $.handlebars; },
           config: { }
         }) ||
         (type === 'jade' && {
           ext: '.jade',
-          get cmd() { return $['jade']; },
+          get cmd() { return $.jade; },
           config: { client: true }
         }) ||
         (type === 'dust' && {
           ext: '.html',
-          get cmd() { return $['dust']; },
+          get cmd() { return $.dust; },
           config: {
             name: function(f) { return f.relative.replace('.html',''); }
           }
         }) ||
         (type === 'dot' && {
           ext: '.dot',
-          get cmd() { return $['dotPrecompiler']; },
+          get cmd() { return $.dotPrecompiler; },
           config: { separator: '/', dictionary: 'R.templates', varname: 'it' }
         });
     })(),
@@ -171,8 +171,9 @@ var gulpConfig = function(_gulp, _config) {
 /**
  * Gladius Forge default tasks setup function.
  */
-var gulpSetupTasks = function(tasksConfig) {
-  /* Helpers --------------------------------------------------------------- */
+
+/* Version bumping --------------------------------------------------------- */
+var _setupVersioningTasks = function() {
   var inc = function(importance) {
     return gulp.src([
       './package.json',
@@ -188,7 +189,6 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe($.git.push('origin', 'master', { args: '--tags' }));
   };
 
-  /* Version bumping ------------------------------------------------------- */
   gulp.task('post-install-patch', [
     'lint:blocker',
     'jsvalidate:blocker:clean'
@@ -216,12 +216,10 @@ var gulpSetupTasks = function(tasksConfig) {
   gulp.task('release', ['install-dev-dep'], function() {
     return gulp.start('post-install-release');
   });
+};
 
-
-  /*
-    PLUGINS LOADING
-                    */
-
+/* Plugins Loading --------------------------------------------------------- */
+var _setupLazyPluginLoadingTasks = function() {
   var originalPackageJson;
   var cleanPackageJson = function() {
     return gulp.src([__dirname + '/package.json'])
@@ -233,7 +231,7 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe(gulp.dest(__dirname + '/'));
   };
 
-  /* Lazy dependencies installation ---------------------------------------- */
+  /* Lazy dependencies installation */
   gulp.task('dirty-install-dep', function() {
     return gulp.src([__dirname + '/package.json'])
     .pipe($.jsonEditor(function(json) {
@@ -256,7 +254,7 @@ var gulpSetupTasks = function(tasksConfig) {
   });
   gulp.task('install-dep', ['dirty-install-dep'], cleanPackageJson);
 
-  /* Lazy dev dependencies installation ------------------------------------ */
+  /* Lazy dev dependencies installation */
   gulp.task('dirty-install-dev-dep', ['dirty-install-dep'], function() {
     return gulp.src([__dirname + '/package.json'])
     .pipe($.jsonEditor(function(json) {
@@ -271,12 +269,10 @@ var gulpSetupTasks = function(tasksConfig) {
     .on('error', handleError);
   });
   gulp.task('install-dev-dep', ['dirty-install-dev-dep'], cleanPackageJson);
+};
 
-  /*
-    CSS TASKS
-              */
-
-  /* Styles compilation ---------------------------------------------------- */
+/* Styles compilation ------------------------------------------------------ */
+var _setupCssTasks = function() {
   gulp.task('styles', function() {
     return gulp.src([paths.src.styles])
     .pipe(plugins.styles.cmd(plugins.styles.config))
@@ -284,13 +280,10 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe($.autoprefixer('last 2 version', 'ie 8', 'ie 9'))
     .pipe(gulp.dest(paths.out.styles));
   });
+};
 
-
-  /*
-    TEMPLATES TASKS
-                    */
-
-  /* Handlebars templates precompilation ----------------------------------- */
+/* Templates precompilation  */
+var _setupTemplatesTasks = function() {
   gulp.task('tpl-precompile', function() {
     return gulp.src([paths.src.partials])
     .pipe($.htmlmin({
@@ -311,34 +304,31 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe(gulp.dest(paths.out.js));
   });
 
-  /* Handlebars template livereloading ------------------------------------- */
+  /* Template livereloading  */
   gulp.task('tpl-reload', ['tpl-precompile'], function() {
     return gulp.src([paths.src.views])
     .pipe($.livereload(lrport));
   });
+};
 
-
-
-  /*
-    SCRIPTS TASKS
-                  */
-
-  /* JS linting ------------------------------------------------------------ */
-  gulp.task('lint', extendDeps([], tasksConfig['lint']), function() {
+/* Tests tasks ------------------------------------------------------------- */
+var _setupTestsTasks = function(tasksConfig) {
+  /* JS linting  */
+  gulp.task('lint', extendDeps([], tasksConfig.lint), function() {
     return gulp.src(extendSrcs([
       paths.src.js,
       paths.src.es6
-    ], tasksConfig['lint']))
+    ], tasksConfig.lint))
     .pipe($.jshint({
       lookup: true
     }))
     .pipe($.jshint.reporter('jshint-stylish'));
   });
-  gulp.task('lint:blocker', extendDeps([], tasksConfig['lint']), function() {
+  gulp.task('lint:blocker', extendDeps([], tasksConfig.lint), function() {
     return gulp.src(extendSrcs([
       paths.src.js,
       paths.src.es6
-    ], tasksConfig['lint']))
+    ], tasksConfig.lint))
     .pipe($.jshint({
       lookup: true
     }))
@@ -346,20 +336,48 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe($.jshint.reporter('fail'));
   });
 
+  /* JS validation  */
   gulp.task('jsvalidate:blocker', ['esnext'], function () {
     return gulp.src(extendSrcs([
       paths.src.tmp + '**/*.js',
       paths.src.tmp + '**/*' + paths.src.esnextExt,
       '!' + paths.src.tmp + '**/*.test.js',
       '!' + paths.src.tmp + '**/*.test' + paths.src.esnextExt
-    ], tasksConfig['lint']))
+    ], tasksConfig.lint))
     .pipe($.jsvalidate());
   });
-
   gulp.task('jsvalidate:blocker:clean', ['jsvalidate:blocker'], cleanTmp);
 
+  /* JS unit tests runner  */
+  gulp.task('karma', function() {
+    return gulp.src([
+      'tricky/freaky/trick/**/*.js'
+    ])
+    .pipe($.karma({
+      configFile: 'karma.conf.js',
+      action: 'run'
+    }))
+    .on('error', function(/*err*/) {
+      // throw err;
+    });
+  });
+  gulp.task('karma:dev', function() {
+    return gulp.src([
+      'tricky/freaky/trick/**/*.js'
+    ])
+    .pipe($.karma({
+      configFile: 'karma.conf.js',
+      action: 'watch'
+    }))
+    .on('error', function(/*err*/) {
+      // throw err;
+    });
+  });
+};
 
-  /* ES6 Syntax transpilation ---------------------------------------------- */
+/* Scripts tasks ----------------------------------------------------------- */
+var _setupScriptsTasks = function(tasksConfig) {
+  /* ES6 Syntax transpilation */
   gulp.task('esnext', ['copy'], function () {
     return gulp.src([
       paths.src.es6
@@ -379,8 +397,7 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe(gulp.dest(paths.src.tmp));
   });
 
-
-  /* JS modules bundling --------------------------------------------------- */
+  /* JS modules bundling */
   gulp.task('bundle-js',
       extendDeps(['esnext'], tasksConfig['bundle-js']), function() {
     var
@@ -428,40 +445,10 @@ var gulpSetupTasks = function(tasksConfig) {
     }))
     .pipe(gulp.dest(paths.out.js));
   });
+};
 
-
-  /* JS unit tests runner -------------------------------------------------- */
-  gulp.task('karma', function() {
-    return gulp.src([
-      'tricky/freaky/trick/**/*.js'
-    ])
-    .pipe($.karma({
-      configFile: 'karma.conf.js',
-      action: 'run'
-    }))
-    .on('error', function(/*err*/) {
-      // throw err;
-    });
-  });
-  gulp.task('karma:dev', function() {
-    return gulp.src([
-      'tricky/freaky/trick/**/*.js'
-    ])
-    .pipe($.karma({
-      configFile: 'karma.conf.js',
-      action: 'watch'
-    }))
-    .on('error', function(/*err*/) {
-      // throw err;
-    });
-  });
-
-
-  /*
-    UTILS
-          */
-
-  /* Lightweight frontend development server ------------------------------- */
+/* Utils tasks ------------------------------------------------------------- */
+var _setupUtilsTasks = function() {
   gulp.task('serve', function() {
     server.listen(serverport);
   });
@@ -484,6 +471,17 @@ var gulpSetupTasks = function(tasksConfig) {
     .pipe($.cached('reloading'))
     .pipe($.livereload(lrport));
   });
+};
+
+/* Setup all tasks --------------------------------------------------------- */
+var gulpSetupTasks = function(tasksConfig) {
+  _setupVersioningTasks();
+  _setupLazyPluginLoadingTasks();
+  _setupCssTasks();
+  _setupTemplatesTasks();
+  _setupTestsTasks(tasksConfig);
+  _setupScriptsTasks(tasksConfig);
+  _setupUtilsTasks();
 };
 
 
