@@ -148,8 +148,11 @@ var extendSrcs = function(srcs, extra) {
  * @param  {Object} config: Configuration object
  */
 var gulpConfig = function(_gulp, _config) {
+  if (!_gulp) {
+    throw 'Error: A Gulp instance should be passed to the gulpConfig method.';
+  }
   gulp = _gulp;
-  config = _config;
+  config = _config || { paths: { src: {}, out: {} } };
 
   plugins = elaboratePlugins();
   paths = elaboratePaths();
@@ -160,7 +163,7 @@ var gulpConfig = function(_gulp, _config) {
   serverport = _config.port || serverport;
 
   cleanTmp = function(done) {
-    del(paths.src.tmp, done);
+    del(paths.src.tmp, { force: _config.forceClean || false }, done);
   };
 };
 

@@ -48,6 +48,9 @@ gladius.config(gulp, {
       scripts: ''
     }
   },
+  // if the gulpfile is located in a different folder to the one which contains
+  // your scripts, a force clean is required, to wipe the temp folder.
+  forceClean: false,
   // express web server to use while developing.
   // port default: 3000
   // liveReloadPort default: 35729
