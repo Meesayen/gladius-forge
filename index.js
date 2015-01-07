@@ -2,7 +2,7 @@
 var
   path = require('path'),
   $ = require('gulp-load-plugins')({
-    scope: ['dependencies', 'lazyDependencies']
+    scope: ['dependencies', 'devDependencies', 'lazyDependencies']
   }),
   lazyDependencies = require('./package.json').lazyDependencies,
   del = require('del'),
