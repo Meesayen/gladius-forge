@@ -417,8 +417,10 @@ var _setupScriptsTasks = function(tasksConfig) {
     .pipe($.uglify())
     .pipe($.rename(function (path) {
       var n = path.basename;
-      path.basename = n.slice(0, n.lastIndexOf(extPrefix));
-      path.extname = '.js';
+      if (~n.lastIndexOf(extPrefix)) {
+        path.basename = n.slice(0, n.lastIndexOf(extPrefix));
+        path.extname = '.js';
+      }
     }))
     .pipe(gulp.dest(paths.out.js));
   });
@@ -440,8 +442,10 @@ var _setupScriptsTasks = function(tasksConfig) {
     .on('error', handleError)
     .pipe($.rename(function (path) {
       var n = path.basename;
-      path.basename = n.slice(0, n.lastIndexOf(extPrefix));
-      path.extname = '.js';
+      if (~n.lastIndexOf(extPrefix)) {
+        path.basename = n.slice(0, n.lastIndexOf(extPrefix));
+        path.extname = '.js';
+      }
     }))
     .pipe(gulp.dest(paths.out.js));
   });
