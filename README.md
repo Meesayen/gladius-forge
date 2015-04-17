@@ -10,7 +10,7 @@ Why Gladius? Because I wanted to emphasize the "bleeding edge" aspect of this
 tool, and what's better than a sword name to describe cutting edges? Plus I'm
 roman, hence "Gladius" (and also because Katana was already taken :P)
 
-It comes with an ES6+ (ES7 async/await are there) to ES3-ish (as IE8 compatible
+It comes with an ES2015+ (ES2016 async/await are there) to ES3-ish (as IE8 compatible
 as possible, but you may have to import polyfills, shims and shams accordingly)
 compilation process, together with a Browserify bundling and Uglifyjs compression.
 
@@ -55,7 +55,7 @@ Usage
 -------------------
 
 The easiest way to use `gladius-forge` is via the [slush-gladius][9] slush generator,
-otherwise proceed manually, folling the instructions below.
+otherwise proceed manually, following the instructions below.
 
 Install `gladius-forge` into your project directory:
 
@@ -114,10 +114,8 @@ tools, I wouldn't have made this little thing so far.
 
 So, thanks goes to:
 
-- [esnext][2] developers and contributors, that are giving us the possibility to use
-  ES6 syntax today, in the most lightweight way possible.
-- Facebook developers working on the [Regenerator][3] compiler, that are giving ES6
-  generators to us, today (also `async` and `await` statements <3).
+- [babel][2] developers and contributors, that are giving us the possibility to use
+  ES2015 syntax today, in the most lightweight way possible.
 - The [Gulp][4] developers. Keep up the good work, looking forward for the v4.0.
 - People behind [Browserify][5], because CommonJS is the right thing!
 - [Karma][6], [JSHint][7] and [gulp-jsvalidate][8] developers, keeping our code safe.
@@ -126,7 +124,7 @@ So, thanks goes to:
 
 
 [1]:http://github.com/Meesayen/gladius-draft
-[2]:http://github.com/esnext/esnext
+[2]:http://github.com/babel/babel
 [3]:http://github.com/facebook/regenerator
 [4]:http://github.com/gulpjs/gulp
 [5]:http://github.com/substack/node-browserify

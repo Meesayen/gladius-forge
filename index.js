@@ -337,7 +337,7 @@ var _setupTestsTasks = function(tasksConfig) {
   });
 
   /* JS validation  */
-  gulp.task('jsvalidate:blocker', ['esnext'], function () {
+  gulp.task('jsvalidate:blocker', ['babelify'], function () {
     return gulp.src(extendSrcs([
       paths.src.tmp + '**/*.js',
       paths.src.tmp + '**/*' + paths.src.esnextExt,
@@ -378,15 +378,11 @@ var _setupTestsTasks = function(tasksConfig) {
 /* Scripts tasks ----------------------------------------------------------- */
 var _setupScriptsTasks = function(tasksConfig) {
   /* ES6 Syntax transpilation */
-  gulp.task('esnext', ['copy'], function () {
+  gulp.task('babelify', ['copy'], function () {
     return gulp.src([
       paths.src.es6
     ])
-    .pipe($.es6mt({
-      formatter: new $.es6mt.formatters.commonjs()
-    }))
-    .on('error', handleError)
-    .pipe($.esnext())
+    .pipe($.babel())
     .on('error', handleError)
     .pipe($.jsvalidate())
     .on('error', handleError)
@@ -399,7 +395,7 @@ var _setupScriptsTasks = function(tasksConfig) {
 
   /* JS modules bundling */
   gulp.task('bundle-js',
-      extendDeps(['esnext'], tasksConfig['bundle-js']), function() {
+      extendDeps(['babelify'], tasksConfig['bundle-js']), function() {
     var
       ext = paths.src.esnextExt,
       extPrefix = ext.slice(0, ext.lastIndexOf('.'));
@@ -425,7 +421,7 @@ var _setupScriptsTasks = function(tasksConfig) {
     .pipe(gulp.dest(paths.out.js));
   });
   gulp.task('bundle-js:dev',
-      extendDeps(['esnext'], tasksConfig['bundle-js:dev']), function() {
+      extendDeps(['babelify'], tasksConfig['bundle-js:dev']), function() {
     var
       ext = paths.src.esnextExt,
       extPrefix = ext.slice(0, ext.lastIndexOf('.'));
@@ -564,7 +560,7 @@ module.exports = {
       get cached() { return $.cached; },
       get jshint() { return $.jshint; },
       get jsvalidate() { return $.jsvalidate; },
-      get esnext() { return $.esnext; },
+      get babel() { return $.babel; },
       get es6ModuleTranspiler() { return $.es6ModuleTranspiler; },
       get rename() { return $.rename; },
       get styles() { return plugins.styles.cmd; },
